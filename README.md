@@ -4,22 +4,23 @@ A pipeline that processes multiplexed 4C-seq reads directly from FASTQ files. It
 
 ## Prerequisites
 
-*	A Unix like shell (e.g. Bash v3.2+).
-*	Illumina base-calling software (bcl2fastq) available from http://www.illumina.com/.
-*	The 4C-seq pipeline can be downloaded from https://github.com/deLaatLab/. 
-*	Bowtie2 v2.3+ available from http://bowtie-bio.sourceforge.net/bowtie2/. 
-*	SAMtools v1.3+ available from http://www.htslib.org/.
-*	R v3.5+ available from https://www.r-project.org/.
-*	The following R packages available from CRAN:
-  * optparse
-  * caTools
-  * config
-* The following R packages available from Bioconductor:
-  * shortRead
-  * genomicRanges
-  * genomicAlignments
-  * Bsgenome of interest
-* The peakC package available from https://github.com/deWitLab/peakC/.
+- A Unix like shell (e.g. Bash v3.2+)
+- Illumina base-calling software (bcl2fastq) available from http://www.illumina.com/.
+- The 4C-seq pipeline can be downloaded from https://github.com/deLaatLab/.
+- Bowtie2 v2.3+ available from http://bowtie-bio.sourceforge.net/bowtie2/.
+- SAMtools v1.3+ available from http://www.htslib.org/.
+- R v3.5+ available from https://www.r-project.org/.
+- The following R packages available from CRAN:
+  - ptparse
+  - caTools
+  - config
+- The following R packages available from Bioconductor:
+  - shortRead
+  - genomicRanges
+  - genomicAlignments
+  - Bsgenome of interest
+- The peakC package available from https://github.com/deWitLab/peakC/.
+
 
 ## Files required to run the pipeline:
 * Reads in (compressed) FASTQ format.
@@ -56,6 +57,8 @@ A pipeline that processes multiplexed 4C-seq reads directly from FASTQ files. It
 | bins          | Count reads for binned regions.                                                                                                                        |
   
   **Table 1.** Description of parameters that can be defined in the configuration file.
+  
+  <BR>
   
 * Viewpoint file
   * Experiment specific parameters for each 4C-seq experiment are organized in a viewpoint file. Parameters in this file are stored in a tab-delimited format, with each row containing information for a separate experiment: 
