@@ -1104,7 +1104,7 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
     if ( bins == TRUE | make.gwplot == TRUE) {
       if ( analysis[i] == "all" ) {
         message("      >>> Creating bins <<<")
-        bin.GR <- make.reads.and.bins( reads=reads.all, assemblyName=genome[i], res=configuration$binSize, config_genomes=configuration$genome )
+        bin.GR <- make.reads.and.bins( reads=reads.all, assemblyName=genome[i], res=configuration$binSize, config_genomes=configuration$genomes )
         file.out <- paste0( RDS.BIN.F, exp.name[i], "_bin_res_", (configuration$binSize/1e3), "kb.rds" )
         saveRDS( object=list( reads=bin.GR$reads, bins=bin.GR$bins, report=reportAnalysis$report, vpInfo=vpInfo ), file=file.out, compress=TRUE )
       }
