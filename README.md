@@ -5,7 +5,6 @@ A pipeline that processes multiplexed 4C-seq reads directly from FASTQ files. It
 ## Prerequisites
 
 - A Unix like shell (e.g. Bash v3.2+)
-- The 4C-seq pipeline can be downloaded from https://github.com/deLaatLab/.
 - Bowtie2 v2.3+ available from http://bowtie-bio.sourceforge.net/bowtie2/.
 - SAMtools v1.3+ available from http://www.htslib.org/.
 - R v3.5+ available from https://www.r-project.org/.
