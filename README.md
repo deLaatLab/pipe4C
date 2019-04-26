@@ -10,7 +10,7 @@ A pipeline that processes multiplexed 4C-seq reads directly from FASTQ files. It
 *	Bowtie2 v2.3+ available from http://bowtie-bio.sourceforge.net/bowtie2/. 
 *	SAMtools v1.3+ available from http://www.htslib.org/.
 *	R v3.5+ available from https://www.r-project.org/.
-*	The following R packages available from CRAN: 
+*	The following R packages available from CRAN:
   * optparse
   * caTools
   * config
@@ -51,9 +51,11 @@ A pipeline that processes multiplexed 4C-seq reads directly from FASTQ files. It
 | nonBlind      | Only keep non-blind fragments.                                                                                                                         |
 | wig           | Create wig files for all samples.                                                                                                                      |
 | plot          | Create viewpoint coverage plot for all samples.                                                                                                        |
-| genomeplot    | Create genomeplot for all samples (only possible if analysis is “all” in vpFile).                                                                      |
+| genomePlot    | Create genomeplot for all samples (only possible if analysis is “all” in vpFile).                                                                      |
 | tsv           | Create tab separated value file for all samples                                                                                                        |
 | bins          | Count reads for binned regions.                                                                                                                        |
+  
+  **Table 1.** Description of parameters that can be defined in the configuration file.
   
 * Viewpoint file
   * Experiment specific parameters for each 4C-seq experiment are organized in a viewpoint file. Parameters in this file are stored in a tab-delimited format, with each row containing information for a separate experiment: 
@@ -63,12 +65,12 @@ A pipeline that processes multiplexed 4C-seq reads directly from FASTQ files. It
 | mESC_Sox2  | TTGCACCCGTCTTCTTGATC | DpnII       | Csp6I        | mm9    | 3     | 34547661 | all      | index1.fastq.gz |
 | mESC_Mccc1 | GAGGGTAATTTTAGCCGATC | DpnII       | Csp6I        | mm9    | 3     | 35873313 | cis      | index1.fastq.gz |
 
+**Table 2.** Example of a viewpoint file in which two experiments are demultiplexed from the same FASTQ file based on their primer sequence.
+
 <BR>
  
- **The list of parameters that are required for each experiment in the 4C-seq pipeline viewpoint file:**
- 
 
-| Name         | Description                                                                                                                                                                                                                                                     |
+| **Name**         | **Description**                                                                                                                                                                                                                                                     |
 |--------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | expname      | Unique experiment name.                                                                                                                                                                                                                                         |
 | primer       | Primer sequence.                                                                                                                                                                                                                                                |
@@ -79,6 +81,12 @@ A pipeline that processes multiplexed 4C-seq reads directly from FASTQ files. It
 | vppos        | Coordinate of viewpoint position. Any position within the VP can be used except the RE motifs (see note 13).                                                                                                                                                    |
 | analysis     | The final output tables will contain all reads (all) or only the reads that have been mapped to the VP chromosome (cis). For most analysis cis is sufficient and the generated output files will be smaller and therefore easier to process on local computers. |
 | fastq        | Name of the FASTQ file.                                                                                                                                                                                                                                         |
+
+**Table 3.** Description of parameters that are required in the viewpoint file for processing a 4C-seq experiment.
+
+
+
+
 ## Running the pipeline:
 
 ```
@@ -89,7 +97,30 @@ A list of both required and optional parameters that are recognized by the pipe4
 
 For example,
 ```
-Rscript pipe4C.R –-vpFile [path to vpFile] --fqFolder [path to folder containing the FASTQ files] –-outFolder [path to output folder] --cores 8 --wig --plot --genomeplot
+Rscript pipe4C.R –-vpFile [path to vpFile] --fqFolder [path to folder containing the FASTQ files] –-outFolder [path to output folder] --cores 8 --wig --plot --genomePlot
 ```
 will run the pipeline using 8 cores and generates a wig file, a viewpoint plot and a genome plot as output, next to the default outputs.
 
+
+| Name            | Description                                                                                                                                        |
+|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| -vpFile *       | path to the viewpoint file.                                                                                                                        |
+| -fqFolder *     | path to the folder containing the FASTQ files.                                                                                                     |
+| -outFolder *    | path to the output folder.                                                                                                                         |
+| -confFile       | path to configuration file – default is conf.yml in folder containing the pipeline script.                                                         |
+| -qualityCutoff  | Q-score. Trim 3-end of all sequences using a sliding window as soon as 2 of 5 nucleotides has quality encoding less than the Q-score. Default = 0. |
+| -trimLength     | Trim reads to defined capture length from 3-end. Default = 0 (no trimming).                                                                        |
+| -minAmountReads | Minimum amount of reads containing the primer sequence. If less reads are identified the experiment will not be further processed.                 |
+| -readsQuality   | Bowtie2 minimum quality mapped reads.                                                                                                              |
+| --mapUnique     | Extract uniquely mapped reads, based on the lack of XS tag.                                                                                        |
+| -cores          | Number of cores for parallelization.                                                                                                               |
+| -wSize          | The running mean window size.                                                                                                                      |
+| -nTop           | Top fragments discarded for normalization.                                                                                                         |
+| --nonBlind      | Only keep non-blind fragments.                                                                                                                     |
+| --wig           | Create wig files for all samples.                                                                                                                  |
+| --plot          | Create viewpoint coverage plot for all samples.                                                                                                    |
+| --genomeplot    | Create genomeplot for all samples (only possible if analysis is “all” in vpFile).                                                                  |
+| --tsv           | Create tab separated value file for all samples                                                                                                    |
+| --bins          | Count reads for binned regions.                                                                                                                    |
+
+**Table 4.** Description of parameters that are recognized by the pipe4C.R script. * are required. 
