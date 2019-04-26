@@ -21,6 +21,17 @@ A pipeline that processes multiplexed 4C-seq reads directly from FASTQ files. It
   - Bsgenome of interest
 - The peakC package available from https://github.com/deWitLab/peakC/.
 
+## Installation
+
+Download the latest version of the pipeline from this git repository using:
+
+```
+    $ wget https://github.com/deLaatLab/pipe4C/archive/master.zip
+    $ unzip master.zip
+    $ cd ./pipe4C
+```
+**note:** the pipe4C.R and functions.R files need to be placed in the same folder. The global configuration file (conf.yml) can be renamed or put in a different location if required.
+
 
 ## Files required to run the pipeline:
 * Reads in (compressed) FASTQ format.
@@ -107,18 +118,18 @@ will run the pipeline using 8 cores and generates a wig file, a viewpoint plot a
 
 | Name            | Description                                                                                                                                        |
 |-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
-| -vpFile *       | path to the viewpoint file.                                                                                                                        |
-| -fqFolder *     | path to the folder containing the FASTQ files.                                                                                                     |
-| -outFolder *    | path to the output folder.                                                                                                                         |
-| -confFile       | path to configuration file – default is conf.yml in folder containing the pipeline script.                                                         |
-| -qualityCutoff  | Q-score. Trim 3-end of all sequences using a sliding window as soon as 2 of 5 nucleotides has quality encoding less than the Q-score. Default = 0. |
-| -trimLength     | Trim reads to defined capture length from 3-end. Default = 0 (no trimming).                                                                        |
-| -minAmountReads | Minimum amount of reads containing the primer sequence. If less reads are identified the experiment will not be further processed.                 |
-| -readsQuality   | Bowtie2 minimum quality mapped reads.                                                                                                              |
+| --vpFile *       | path to the viewpoint file.                                                                                                                        |
+| --fqFolder *     | path to the folder containing the FASTQ files.                                                                                                     |
+| --outFolder *    | path to the output folder.                                                                                                                         |
+| --confFile       | path to configuration file – default is conf.yml in folder containing the pipeline script.                                                         |
+| --qualityCutoff  | Q-score. Trim 3-end of all sequences using a sliding window as soon as 2 of 5 nucleotides has quality encoding less than the Q-score. Default = 0. |
+| --trimLength     | Trim reads to defined capture length from 3-end. Default = 0 (no trimming).                                                                        |
+| --minAmountReads | Minimum amount of reads containing the primer sequence. If less reads are identified the experiment will not be further processed.                 |
+| --readsQuality   | Bowtie2 minimum quality mapped reads.                                                                                                              |
 | --mapUnique     | Extract uniquely mapped reads, based on the lack of XS tag.                                                                                        |
-| -cores          | Number of cores for parallelization.                                                                                                               |
-| -wSize          | The running mean window size.                                                                                                                      |
-| -nTop           | Top fragments discarded for normalization.                                                                                                         |
+| --cores          | Number of cores for parallelization.                                                                                                               |
+| --wSize          | The running mean window size.                                                                                                                      |
+| --nTop           | Top fragments discarded for normalization.                                                                                                         |
 | --nonBlind      | Only keep non-blind fragments.                                                                                                                     |
 | --wig           | Create wig files for all samples.                                                                                                                  |
 | --plot          | Create viewpoint coverage plot for all samples.                                                                                                    |
