@@ -5,7 +5,6 @@ A pipeline that processes multiplexed 4C-seq reads directly from FASTQ files. It
 ## Prerequisites
 
 - A Unix like shell (e.g. Bash v3.2+)
-- Illumina base-calling software (bcl2fastq) available from http://www.illumina.com/.
 - The 4C-seq pipeline can be downloaded from https://github.com/deLaatLab/.
 - Bowtie2 v2.3+ available from http://bowtie-bio.sourceforge.net/bowtie2/.
 - SAMtools v1.3+ available from http://www.htslib.org/.
