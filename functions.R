@@ -20,7 +20,7 @@ createConfig <- function( confFile=argsL$confFile ){
   mapUnique <- configF$mapUnique
   nonBlind <- configF$nonBlind
   wig <- configF$wig
-  plot <- configF$plot
+  cisplot <- configF$cisplot
   genomePlot <- configF$genomePlot
   tsv <- configF$tsv
   bins <- configF$bins
@@ -70,7 +70,7 @@ createConfig <- function( confFile=argsL$confFile ){
                 ,mapUnique=mapUnique
                 ,nonBlind=nonBlind
                 ,wig=wig
-                ,plot=plot
+                ,cisplot=cisplot
                 ,genomePlot=genomePlot
                 ,tsv=tsv
                 ,bins=bins
@@ -81,15 +81,22 @@ createConfig <- function( confFile=argsL$confFile ){
 Read.VPinfo<-function(VPinfo.file){
   #Indentify Fastq files, experiment names and primer sequence from VPinfo file
   VPinfo <- read.table(VPinfo.file, sep="\t", stringsAsFactors=FALSE, header=TRUE )
-  headerCount <- sum( colnames( VPinfo ) %in% c( 'expname', 'primer', 'firstenzyme', 'secondenzyme', 'genome', 'vpchr', 'vppos', 'analysis', 'fastq' ) ) 
-  if( headerCount == 0 ) {
-    message("Header not found in VPinfo file. Adding default names")
-    VPinfo <- read.table(VPinfo.file, sep="\t", stringsAsFactors=FALSE, header=FALSE )
-    names( VPinfo ) <- c( 'expname', 'primer', 'firstenzyme', 'secondenzyme', 'genome', 'vpchr', 'vppos', 'analysis', 'fastq' )
-  } else if ( headerCount > 0 & headerCount < 9 ) {
-    message( "Header not correct in VPinfo file. Adding default names" )
-    names( VPinfo ) <- c( 'expname', 'primer', 'firstenzyme', 'secondenzyme', 'genome', 'vpchr', 'vppos', 'analysis', 'fastq' )
+  
+  if (ncol(VPinfo)==9){
+    defaultNames<-c( 'expname', 'primer', 'firstenzyme', 'secondenzyme', 'genome', 'vpchr', 'vppos', 'analysis', 'fastq' )
+    headerCount <- sum( colnames( VPinfo ) %in% defaultNames )
   }
+  
+  if (ncol(VPinfo)==10){
+    defaultNames<-c( 'expname', 'spacer','primer', 'firstenzyme', 'secondenzyme', 'genome', 'vpchr', 'vppos', 'analysis', 'fastq' )
+    headerCount <- sum( colnames( VPinfo ) %in% defaultNames ) 
+  }
+
+  if ( headerCount < ncol(VPinfo) ) {
+    message( "Header not correct in VPinfo file." )
+    return()
+   }
+  
   expname <- as.character(gsub("[^A-Za-z0-9_]", "", VPinfo$expname ))
   primer <-   toupper(as.character(gsub("[^A-Za-z]", "", VPinfo$primer )))
   firstenzyme <-  as.character(gsub("[^A-Za-z0-9]", "", VPinfo$firstenzyme ))
@@ -99,10 +106,18 @@ Read.VPinfo<-function(VPinfo.file){
   vppos <- as.numeric(gsub("\\D+", "", VPinfo$vppos ))
   analysis <- as.character(gsub("[^a-z]", "", VPinfo$analysis ))
   fastq <- as.character( VPinfo$fastq )
-  return( data.frame( expname=expname, primer=primer, firstenzyme=firstenzyme, secondenzyme=secondenzyme, genome=genome, vpchr=vpchr, vppos=vppos, analysis=analysis, fastq=fastq, stringsAsFactors=FALSE ) )         
+  
+  if (ncol(VPinfo)==9){
+    VPinfo$spacer<-0
+  }
+  
+  spacer <- as.numeric(gsub("\\D+", "", VPinfo$spacer ))
+  
+  
+  return( data.frame( expname=expname, spacer=spacer, primer=primer, firstenzyme=firstenzyme, secondenzyme=secondenzyme, genome=genome, vpchr=vpchr, vppos=vppos, analysis=analysis, fastq=fastq, stringsAsFactors=FALSE ) )         
 }
 
-demux.FASTQ <- function( VPinfo, FASTQ.F, FASTQ.demux.F, demux.log.path, spacer=0, overwrite=FALSE ) {
+demux.FASTQ <- function( VPinfo, FASTQ.F, FASTQ.demux.F, demux.log.path, overwrite=FALSE ) {
   # reading functions
   if( !require( "ShortRead", character.only = TRUE ) ) stop( "Package not found: ShortRead" )
   
@@ -121,9 +136,11 @@ demux.FASTQ <- function( VPinfo, FASTQ.F, FASTQ.demux.F, demux.log.path, spacer=
     exp.name.all <- as.character(VPinfo$expname)
     exp.name <- as.character(VPinfo.fastq$expname)
     primer <-  toupper(as.character(VPinfo.fastq$primer))
+    spacer<- as.numeric(VPinfo.fastq$spacer)
     #Remove experiments with duplicated names
     exp.name.unique <- NULL
     primer.unique <- NULL
+    spacer.unique <- NULL
     for (a in 1:length(exp.name)) {
       if (exp.name[a] %in% exp.name.all[duplicated(exp.name.all)]) {
         error.msg <-
@@ -133,6 +150,7 @@ demux.FASTQ <- function( VPinfo, FASTQ.F, FASTQ.demux.F, demux.log.path, spacer=
       } else{
         exp.name.unique <- c(exp.name.unique, exp.name[a])
         primer.unique <- c(primer.unique, primer[a])
+        spacer.unique <- c(spacer.unique, spacer[a])
       }
     }
     
@@ -145,13 +163,13 @@ demux.FASTQ <- function( VPinfo, FASTQ.F, FASTQ.demux.F, demux.log.path, spacer=
           error.msg<-paste("      ### WARNING: File", outfile , "exists and will be overwritten.")
           write(error.msg, demux.log.path, append = TRUE)
           message(error.msg)
-          newrow<-data.frame(exp.name=exp.name.unique[b],primer=primer.unique[b])
+          newrow<-data.frame(exp.name=exp.name.unique[b],primer=primer.unique[b],spacer=spacer.unique[b])
           fq.df<-rbind(fq.df,newrow)
         } else {
           message(paste("      ### WARNING: File", outfile , "exists. continuing with exisiting file."))
         }
       } else {
-        newrow<-data.frame(exp.name=exp.name.unique[b],primer=primer.unique[b])
+        newrow<-data.frame(exp.name=exp.name.unique[b],primer=primer.unique[b],spacer=spacer.unique[b])
         fq.df<-rbind(fq.df,newrow)
       }
     }
@@ -161,12 +179,13 @@ demux.FASTQ <- function( VPinfo, FASTQ.F, FASTQ.demux.F, demux.log.path, spacer=
       message(paste("      >>> Reading Fastq: ", file.fastq[i], " <<<"))
       # then we stream the fastq files at 1,000,000 reads each time ( default )
       stream <- FastqStreamer((paste0(FASTQ.F,"/", file.fastq[i])))
-      message( paste0('         ### ', fq.df$exp.name, ' check for primer sequence ', fq.df$primer, '\n' ) )
+      message( paste0('         ### ', fq.df$exp.name, ' check for primer sequence ', fq.df$primer, ' spacer:',fq.df$spacer,'\n' ) )
+      
       while(length(fq <- yield(stream))) {
         for (i in 1:nrow(fq.df)) {
           primer.seq <-as.character(fq.df$primer[i])
           demultiplex.primer = srFilter(function(x) {
-            substr(sread(x), spacer+1, spacer+nchar(primer.seq)) == primer.seq
+            substr(sread(x), spacer[i]+1, spacer+nchar(primer.seq)) == primer.seq
           }
           , name = "demultiplex.primer"
           )
@@ -895,11 +914,13 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
   logDirs$bamFolder <- ifelse( !dir.exists( BAM.F ), dir.create( BAM.F ), FALSE )
   logDirs$rdsFolder <- ifelse( !dir.exists( RDS.F ), dir.create( RDS.F ), FALSE )
   logDirs$rdsbinFolder <- ifelse( !dir.exists( RDS.BIN.F ), dir.create( RDS.BIN.F ), FALSE )
-  logDirs$tsvFolder <- ifelse( !dir.exists( TSV.F ), dir.create( TSV.F ), FALSE )
   
   # Extract experiments from VPinfo, remove weird characters and save in output folder. 
   message( paste0( "\n------ Reading the VP info file: ", VPinfo.file ) )
   VPinfo <- Read.VPinfo( VPinfo.file )
+  if (is.null(VPinfo)){
+    stop( "viewpoint info file (vpFile) not correct." )
+  }
   write.table( VPinfo, paste0( OUTPUT.F, "/VPinfo.txt" ), sep="\t", row.names=FALSE, quote=F )
 
 
@@ -912,6 +933,11 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
   if( any( VPinfo$analysis == 'all' ) & make.gwplot ){
     logDirs$genomeplotFolder <- ifelse( !dir.exists( GENOMEPLOT.F ), dir.create( GENOMEPLOT.F ), FALSE )
   }
+  
+  if ( tsv == TRUE ){
+  logDirs$tsvFolder <- ifelse( !dir.exists( TSV.F ), dir.create( TSV.F ), FALSE )
+  }
+  
   
   # Make Log files
   LOGNAME <- format( Sys.time(), '%Y_%m_%d__%H_%M_%S' )
@@ -931,7 +957,7 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
 
   # Demultiplex all fastq files and write in FASTQ folder in OUTPUT.F
   message("\n------ Demultiplexing Fastq files based on VPinfo file")
-  demux.FASTQ( VPinfo=VPinfo, FASTQ.F=FASTQ.F, FASTQ.demux.F=FASTQ.demux.F, demux.log.path=demux.log.path )
+  demux.FASTQ( VPinfo=VPinfo, FASTQ.F=FASTQ.F, FASTQ.demux.F=FASTQ.demux.F, demux.log.path=demux.log.path)
 
   #4C-seq analysis
 
