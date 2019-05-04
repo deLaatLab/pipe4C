@@ -1064,7 +1064,7 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
       ,nThreads_FragMap=nThreads
       ,baseFolder_FragMap=configuration$baseFolder
       ,Bowtie2Folder=configuration$bt2Genomes[ genome[i], ]
-      ,config_genomes=configuration$genome
+      ,config_genomes=configuration$genomes
     )
 
     message("      >>> Align reads to fragments <<<")
