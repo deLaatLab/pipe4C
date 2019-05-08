@@ -486,7 +486,7 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
   if ( !file.exists( rdsFile ) ){
     do.call( require, args=list( config_genomes[ assemblyName, ] ) )
     assign( 'frag.genome', base::get( config_genomes[ assemblyName, ] ) )
-    
+   
     chr <- unique( seqnames( frag.genome ) )
     chr <- chr[ grep( pattern="_random", x=chr, invert=TRUE ) ]
     chr <- chr[ grep( pattern="_hap", x=chr, invert=TRUE ) ]
@@ -1038,6 +1038,14 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
     }
 
     captureLen <- trim.FASTQ$captureLen
+    
+    if (captureLen<nchar(firstcutter)){
+      error.msg <- paste0( "         ### ERROR:", exp.name[i], " capture length < length firstcutter motif" )
+      write( error.msg, log.path, append=TRUE )
+      message( error.msg )
+      next
+    }
+    
     nReads <- trim.FASTQ$nReads
 
     # 3. make BAM files
@@ -1054,6 +1062,15 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
     
     mappedReads <- readGAlignments( file=bamFile, index=bamFile )
 
+
+# To do: lock frag map
+#exec 3>hg19_Dpn2_Csp6I # open a file handle; this part will always succeed
+#flock -x 3      # lock the file handle; this part will block
+#To release the lock:
+#exec 3>&-       # close the file handle
+      
+    
+    
     message( paste0("      >>> Create frag map for genome:", genome[i], " with RE1:", firstcutter, "and RE2:", secondcutter, " and capture length:", captureLen, " <<<" ) )
     frags <- getFragMap(
        vpChr_FragMap=NULL
@@ -1067,6 +1084,7 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
       ,config_genomes=configuration$genomes
     )
 
+    
     message("      >>> Align reads to fragments <<<")
     readsAln <- alignToFragends(
        gAlign=mappedReads
