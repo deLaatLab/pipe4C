@@ -1039,8 +1039,8 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
 
     captureLen <- trim.FASTQ$captureLen
     
-    if (captureLen<nchar(firstcutter)){
-      error.msg <- paste0( "         ### ERROR:", exp.name[i], " capture length < length firstcutter motif.")
+    if (captureLen<=nchar(firstcutter)){
+      error.msg <- paste0( "         ### ERROR:", exp.name[i], " capture length <= length firstcutter motif.")
       message("         ### Skipping experiment.")
       write( error.msg, log.path, append=TRUE )
       message( error.msg )
