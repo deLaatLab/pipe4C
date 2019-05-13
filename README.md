@@ -9,7 +9,7 @@ A pipeline that processes multiplexed 4C-seq reads directly from FASTQ files. It
 - SAMtools v1.3+ available from http://www.htslib.org/.
 - R v3.5+ available from https://www.r-project.org/.
 - The following R packages available from CRAN:
-  - ptparse
+  - optparse
   - caTools
   - config
 - The following R packages available from Bioconductor:
