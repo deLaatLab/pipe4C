@@ -723,7 +723,7 @@ make.reads.and.bins <- function( reads, assemblyName, res=25e3, config_genomes )
 
   message("making bins")
   bin.GR   <- tileGenome(x, tilewidth=res, cut.last.tile.in.chrom=TRUE)
-  bin.GR$pos <- start(resize(bin.GR,width=1,fix="center"))/1e6
+  bin.GR$pos <- start(resize(bin.GR,width=1,fix="center"))
 
   #overlap
   message("Overlapping reads with bins")
