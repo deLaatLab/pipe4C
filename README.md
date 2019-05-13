@@ -28,7 +28,7 @@ Download the latest version of the pipeline from this git repository using:
     $ unzip master.zip
     $ cd ./pipe4C
 ```
-**note:** the pipe4C.R and functions.R files need to be placed in the same folder. The global configuration file (conf.yml) can be renamed or put in a different location if required.
+**note:** the pipe4C.R and functions.R files need to be placed in the same folder. 
 
 
 ## Files required to run the pipeline:
