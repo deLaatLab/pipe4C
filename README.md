@@ -105,7 +105,7 @@ Download the latest version of the pipeline from this git repository using:
 Rscript <path to pipe4C.R script> [any additional arguments]. 
 ```
 
-A list of both required and optional parameters that are recognized by the pipe4C.R script are shown below. Default values (except vpFile, fqFolder, outFolder and confFile) are stored in the configuration file. 
+A list of both required and optional parameters that are recognized by the pipe4C.R script are shown in table 4. Default values (except vpFile, fqFolder, outFolder and confFile) are stored in the configuration file. 
 
 For example,
 ```
