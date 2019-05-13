@@ -36,7 +36,10 @@ Download the latest version of the pipeline from this git repository using:
   * Illumina Sequencing Systems generate raw data files in binary base call (BCL) format. Illumina offers bcl2fastq conversion software to demultiplex (based on the index used in the non-reading primer) and convert BCL files. If multiple flow cell lanes have been used to sequence the library, a single Read 1 FASTQ file should be created per index per sequence run by combining the FASTQ files for each flow cell lane using a standard “cat” command after BCL conversion or by using the no-lane-splitting option when running bcl2fastq.
 * Configuration file (conf.yml)
   * Global and system specific parameters (such as e.g. paths and genome assemblies installed) that are likely to remain constant across different runs of the pipeline are defined in the global configuration file (conf.yml). In each run the pipeline initially loads the parameters defined in this global configuration file, and then proceeds to load run specific parameters and the experiment specific data defined in a separate file (vpFile). The global configuration file can be edited using any standard text editor. 
-  The list of parameters that need to be set at least once upon installation on a system in the global configuration file are shown below:
+  The list of parameters that need to be set at least once upon installation on a system in the global configuration file are shown in table 1.
+  
+  <BR>
+  
   
 | Name            | Description                                                                                                                                            |
 |-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
