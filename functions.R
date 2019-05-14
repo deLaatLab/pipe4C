@@ -1299,7 +1299,10 @@ return(peakGR)
 
 exportPeakCPeaks <- function(resPeakC,bedFile,name=NULL,desc=NULL,includeVP=TRUE,min.gapwidth=0) {
 
-if(is.null(name)) {
+vpChr <- resPeakC$vpChr
+vpPos <- resPeakC$vpPos
+  
+  if(is.null(name)) {
 
   name <- "peakC_track"
 
@@ -1311,8 +1314,7 @@ if(is.null(desc)) {
 
 }
 
-vpChr <- resPeakC$vpChr
-vpPos <- resPeakC$vpPos
+
 
 vpGR <- resize(GRanges(seqnames=vpChr,IRanges(vpPos,vpPos)),width=1e3,fix="center")
 
