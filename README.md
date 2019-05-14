@@ -26,7 +26,7 @@ Download the latest version of the pipeline from this git repository using:
 ```
     $ wget https://github.com/deLaatLab/pipe4C/archive/master.zip
     $ unzip master.zip
-    $ cd ./pipe4C
+    $ cd ./pipe4C-master
 ```
 **note:** the pipe4C.R and functions.R files need to be placed in the same folder. 
 
