@@ -1,0 +1,4 @@
+expname	primer	firstenzyme	secondenzyme	genome	vpchr	vppos	analysis	fastq
+set_1_viewpoint_10_ESC_replicate_1	GAGGGTAATTTTAGCCGATC	DpnII	Csp6I	mm9	chr3	34547661	cis	reads_set_1_viewpoint_10_ESC_replicate_1.fastq.gz
+set_1_viewpoint_10_ESC_replicate_2	GAGAGGGTAATTTTAGCCGATC	DpnII	Csp6I	mm9	chr3	34547661	cis	reads_set_1_viewpoint_10_ESC_replicate_2.fastq.gz
+set_1_viewpoint_10_ESC_replicate_3	AGGAGGGTAATTTTAGCCGATC	DpnII	Csp6I	mm9	chr3	34547661	cis	reads_set_1_viewpoint_10_ESC_replicate_3.fastq.gz
