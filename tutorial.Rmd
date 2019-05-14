@@ -1,30 +1,43 @@
----
-title: "Step by step"
-author: "Krijger"
-date: "14 mei 2019"
-output: html_document
----
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+# Step by step tutorial
 
-## R Markdown
+In this tutorial we will explain how to run the pipeline and perform peakC analysis on the Sox2 4C-seq data from Geeven et al. (SRA files GSM2824300, GSM2824301 and GSM2824302). 
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+## Download the pipeline including the example files
 
-```{r cars}
-summary(cars)
-```
+    $ wget https://github.com/deLaatLab/pipe4C/archive/master.zip
+    $ unzip master.zip
+    $ cd ./pipe4C-master
 
-## Including Plots
+> **note:** the pipe4C.R and functions.R files need to be placed in the same folder.
+> The FASTQ files and viewpoint file can be found in the example folder.
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+## Modify the configuration file
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+*	Change the location in which the fragmented genome will be generated (fragFolder).
+*	Change the location in which the bowtie2 index is stored.
+
+## Run the pipeline
+
+    Rscript pipe4C.R --vpFile=./example/VPinfo.txt --fqFolder=./example/ --outFolder=./outF/ --cores 8 --plot --wig
+
+This will run the pipeline using 8 cores and generates a viewpoint plot and wig file as output, next to the default outputs.
+
+## Check the report file
+
+the report file indicates that the quality of the experiment is good.
+
+* ~80% of the reads map to the viewpoint chromosome (fragMappedCisPercCorr).
+* ~75% of the reads mapping to the viewpoint chromosome maps within 1MB from the viewpoint (cov1Mb).
+* Furthermore ~90% of the mappable DpnII fragment ends within 100kb from the viewpoint (capt100Kb) have at least one read.
+
+## Have a look at the viewpoint plots
+
+A coverage plot of the viewpoint region is generated based on the normalized and smoothened data. The genomic region that is visualized, the height of the Y-axis, the unit of the X-axis (Mb, kb, bp) and the file type (PDF or PNG) are defined and can be adjusted in the configuration file.  In addition the quality metrics are displayed in this figure for a quick impression of the data.
+
+
+
+
+
