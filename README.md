@@ -2,6 +2,8 @@
 
 A pipeline that processes multiplexed 4C-seq reads directly from FASTQ files. It generates files in a range of widely used formats to facilitate visualization and further data analysis using standard genome browsers and tools, including our recently developed peak caller for 4C-seq data peakC.
 
+If you have any difficulties using the pipeline, please do not hesitate to contact us (delaatbioinf@hubrecht.eu)
+
 ## Prerequisites
 
 - A Unix like shell (e.g. Bash v3.2+)
