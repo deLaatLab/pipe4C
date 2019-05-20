@@ -150,7 +150,7 @@ In this tutorial we will explain how to run the pipeline and perform peakC analy
 ## Set up the pipeline
 
 #### Download the pipeline including the example files
-Download the pipeline and example file using the following command. 
+Download the pipeline and example files using the following command. 
 
     $ wget https://github.com/deLaatLab/pipe4C/archive/master.zip
     $ unzip master.zip
