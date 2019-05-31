@@ -189,8 +189,9 @@ demux.FASTQ <- function( VPinfo, FASTQ.F, FASTQ.demux.F, demux.log.path, overwri
       while(length(fq <- yield(stream))) {
         for (i in 1:nrow(fq.df)) {
           primer.seq <-as.character(fq.df$primer[i])
+          spacer<-as.numeric(fq.df$spacer[i])
           demultiplex.primer = srFilter(function(x) {
-            substr(sread(x), spacer[i]+1, spacer+nchar(primer.seq)) == primer.seq
+            substr(sread(x), spacer+1, spacer+nchar(primer.seq)) == primer.seq
           }
           , name = "demultiplex.primer"
           )
@@ -232,6 +233,7 @@ trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F,
       demux.fq <- demux.fq[width(demux.fq) >= 30]
       #Maybe do this filtering afterwards? read len=Cap length?? (or a few nt less?)
     } #close cutoff
+    
     #Trim sequences 
     read.length <- as.numeric(names(which.max(table(width(demux.fq)))))
     sequences <- sread( demux.fq )
@@ -246,11 +248,12 @@ trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F,
     } else {
       message( paste0( "         ### Total Reads: ", nReads ) )
     }
+    
     #Find the most occuring position of the firstcutter
     motif.1st.pos <- as.numeric( names( sort( table( regexpr( firstcutter, sequences ) ), decreasing=TRUE ) )[1] )
     motif.1st.pos.2nd <- FALSE
     if ( motif.1st.pos > 0 ){
-      #Check whether firstcutter motif is within the first 4 nts (as part of the barcode). If so take 2nd firstcutter pos.
+      #Check whether firstcutter motif is within the first 4 nts (as part of a barcode). If so take 2nd firstcutter pos.
       if ( motif.1st.pos < 5 ){
         motif.1st.pos.2nd <- TRUE
         motif.1st.pos <- as.numeric( names( sort( table( gregexpr( firstcutter, sequences )[[1]][2] ), decreasing=TRUE ) )[1] )
@@ -259,6 +262,8 @@ trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F,
         sequences <- substr( sequences, 1, ( trim.length-1+motif.1st.pos ) )
         read.length <- as.numeric(names(which.max(table(width(sequences)))))
       }
+      
+      
       # Trim non-blind fragend sequences based on 2nd cutter 
       motif.2ndRE.pos <- as.numeric( names( sort( table( regexpr( secondcutter, sequences ) ), decreasing=TRUE ) )[1] ) #Determine whether part of barcode
       if ( motif.2ndRE.pos > 5 | motif.2ndRE.pos == -1 ){
