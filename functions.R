@@ -102,7 +102,12 @@ Read.VPinfo<-function(VPinfo.file){
   firstenzyme <-  as.character(gsub("[^A-Za-z0-9]", "", VPinfo$firstenzyme ))
   secondenzyme <- as.character(gsub("[^A-Za-z0-9]", "", VPinfo$secondenzyme ))
   genome <- as.character(gsub("[^A-Za-z0-9_]", "", VPinfo$genome ))
-  vpchr <- as.character(gsub("[^0-9XYMxym]", "",VPinfo$vpchr ))
+  
+  #vpchr <- as.character(gsub("[^0-9XYMxym]", "",VPinfo$vpchr ))
+  
+  #To be sure that any kind of chromosome name for different species can be used I only remove spaces.
+  vpchr <- as.character(gsub(" ", "",VPinfo$vpchr ))
+  
   vppos <- as.numeric(gsub("\\D+", "", VPinfo$vppos ))
   analysis <- as.character(gsub("[^a-z]", "", VPinfo$analysis ))
   fastq <- as.character( VPinfo$fastq )
