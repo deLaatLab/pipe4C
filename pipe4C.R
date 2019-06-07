@@ -6,17 +6,17 @@ get_script_path <- function(path=NULL) {
     needle = "--file="
     match = grep(needle, cmdArgs)
     if (length(match) > 0) {
-        # Rscript
-        return(normalizePath(sub(needle, "", cmdArgs[match])))
+      # Rscript
+      return(normalizePath(sub(needle, "", cmdArgs[match])))
     } else {
-        ls_vars = ls(sys.frames()[[1]])
-        if ("fileName" %in% ls_vars) {
-            # Source'd via RStudio
-            return(normalizePath(sys.frames()[[1]]$fileName))
-        } else {
-            # Source'd via R console
-            return(normalizePath(sys.frames()[[1]]$ofile))
-        }
+      ls_vars = ls(sys.frames()[[1]])
+      if ("fileName" %in% ls_vars) {
+        # Source'd via RStudio
+        return(normalizePath(sys.frames()[[1]]$fileName))
+      } else {
+        # Source'd via R console
+        return(normalizePath(sys.frames()[[1]]$ofile))
+      }
     }
   } else {
     return(path)
@@ -40,6 +40,9 @@ option_list = list(
   
   
   
+  make_option(c("-d", "--mismatchMax"), type="integer", default=NULL,
+              help="Maximum number of mismatches allowed with primer sequence during demultiplexing.",metavar="number"),
+  
   make_option(c("-q", "--qualityCutoff"), type="integer", default=NULL,
               help="Q-score. Trim 3-end of all sequences using a sliding window as soon as 2 of 5 nucleotides has quality encoding less than the Q-score.",metavar="number"),
   make_option(c("-l", "--trimLength"), type="integer", default=NULL,
@@ -55,7 +58,7 @@ option_list = list(
   make_option(c("-n", "--nTop"), type="integer", default=NULL,
               help="Top fragments discarded for normalization.",metavar="number"),
   
-
+  
   make_option(c("-u", "--mapUnique"), action="store_true", default=FALSE,
               help="Extract uniquely mapped reads, based on the lack of XS tag."),
   make_option(c("-nb", "--nonBlind"), action="store_true", default=FALSE,
@@ -107,7 +110,7 @@ if( !suppressMessages(require( "config", character.only=TRUE ) ) ) stop( "Packag
 source( sub( pattern='pipe4C\\.R', replacement='functions\\.R', x=get_script_path()) )
 
 if (argsL$confFile=='conf.yml'){
-    argsL$confFile<-sub( pattern='pipe4C\\.R', replacement='conf.yml', x=get_script_path()) 
+  argsL$confFile<-sub( pattern='pipe4C\\.R', replacement='conf.yml', x=get_script_path()) 
 }
 
 configOpt <- createConfig( confFile=argsL$confFile )
@@ -134,6 +137,9 @@ if (!is.null(argsL$wSize)){
 }
 if (!is.null(argsL$nTop)){
   configOpt$nTop<-argsL$nTop
+}
+if (!is.null(argsL$mismatchMax)){
+  configOpt$mmMax<-argsL$mismatchMax
 }
 
 
@@ -176,25 +182,11 @@ embryo()
 
 
 Run.4Cpipeline( 
-                VPinfo.file = argsL$vpFile
-               ,FASTQ.F = argsL$fqFolder
-               ,OUTPUT.F = argsL$outFolder
-               ,configuration=configOpt
-               # ,cutoff = argsL$qualityCutoff
-               # ,trim.length = argsL$trimLength
-               # ,min.amount.reads=argsL$minAmountReads
-               # ,reads.quality=argsL$readsQuality
-               # ,map.unique = argsL$mapUnique
-               # ,nThreads = argsL$cores
-               # ,wSize = argsL$wSize
-               # ,nTop = argsL$nTop
-               # ,nonBlind = argsL$nonBlind
-               # ,make.wig = argsL$wig
-               # ,make.cisplot = argsL$plot
-               # ,make.gwplot = argsL$genomePlot
-               # ,tsv = argsL$tsv
-               # ,bins=argsL$bins
-              )
+  VPinfo.file = argsL$vpFile
+  ,FASTQ.F = argsL$fqFolder
+  ,OUTPUT.F = argsL$outFolder
+  ,configuration=configOpt
+)
 
 
 #################################################################################################################
