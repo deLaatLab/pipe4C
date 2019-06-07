@@ -15,7 +15,7 @@ default:
  genomePlot : FALSE
  tsv : FALSE
  bins : FALSE
- 
+ mismatchMax : 0
  
  enzymes:
   -
