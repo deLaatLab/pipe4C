@@ -69,6 +69,7 @@ Download the latest version of the pipeline from this git repository using:
 | genomePlot    | Create genomeplot for all samples (only possible if analysis is “all” in vpFile).                                                                      |
 | tsv           | Create tab separated value file for all samples                                                                                                        |
 | bins          | Count reads for binned regions.                                                                                                                        |
+| mismatchMax   | The maximum number of mismatches allowed during demultiplexing.                                                                                        |
   
   **Table 1.** Description of parameters that can be defined in the configuration file.
   
@@ -125,6 +126,7 @@ will run the pipeline using 8 cores and generates a wig file, a viewpoint plot a
 | fqFolder *     | path to the folder containing the FASTQ files.                                                                                                     |
 | outFolder *    | path to the output folder.                                                                                                                         |
 | confFile       | path to configuration file – default is conf.yml in folder containing the pipeline script.                                                         |
+| mismatchMax   | The maximum number of mismatches allowed during demultiplexing.                                                                                        |
 | qualityCutoff  | Q-score. Trim 3-end of all sequences using a sliding window as soon as 2 of 5 nucleotides has quality encoding less than the Q-score. Default = 0. |
 | trimLength     | Trim reads to defined capture length from 3-end. Default = 0 (no trimming).                                                                        |
 | minAmountReads | Minimum amount of reads containing the primer sequence. If less reads are identified the experiment will not be further processed.                 |
