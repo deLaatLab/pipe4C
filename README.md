@@ -43,7 +43,7 @@ Download the latest version of the pipeline from this git repository using:
   <BR>
   
   
-| **Name          | Description**                                                                                                                                                                      |
+| Name            | Description                                                                                                                                                                        |
 |-----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | fragFolder      | Path to the folder containing the fragment end libraries of the reference genomes.                                                                                                 |
 | normalizeFactor | Reads mapped to the 4C fragment end library are normalized to account for sequencing depth according to the normalizeFactor.                                                       |
@@ -88,7 +88,7 @@ Download the latest version of the pipeline from this git repository using:
 <BR>
  
 
-| **Name              | Description**                                                                                                                                                                                                                                                                                  |
+|   Name            | Description                                                                                                                                                                                                                                                                                  |
 |-------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | expname           | Unique experiment name.                                                                                                                                                                                                                                                                      |
 | primer            | Primer sequence.                                                                                                                                                                                                                                                                             |
@@ -121,7 +121,7 @@ Rscript pipe4C.R –-vpFile [path to vpFile] --fqFolder [path to folder containi
 will run the pipeline using 8 cores and generates a wig file, a viewpoint plot and a genome plot as output, next to the default outputs.
 
 
-| **Name           | Description**                                                                                                                          |
+| Name             | Description                                                                                                                            |
 |------------------|----------------------------------------------------------------------------------------------------------------------------------------|
 | --vpFile *       | path to the viewpoint file.                                                                                                            |
 | --fqFolder *     | path to the folder containing the FASTQ files.                                                                                         |
