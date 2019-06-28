@@ -18,7 +18,7 @@ If you have any difficulties using the pipeline, please do not hesitate to conta
   - shortRead
   - genomicRanges
   - genomicAlignments
-  - Bsgenome of interest
+  - BSgenome of interest
 - The peakC package available from https://github.com/deWitLab/peakC/.
 
 ## Installation
@@ -43,33 +43,33 @@ Download the latest version of the pipeline from this git repository using:
   <BR>
   
   
-| Name            | Description                                                                                                                                            |
-|-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
-| fragFolder      | Path to the folder containing the fragment end libraries of the reference genomes.                                                                     |
-| normalizeFactor | Reads mapped to the 4C fragment end library are normalized to account for sequencing depth according to the normalizeFactor.                           |
-| enzymes         | Enzyme names used in the viewpoint file and its corresponding recognition motif.                                                                       |
-| genomes         | Genome names used in the viewpoint file plus corresponding BSgenome package.                                                                           |
-| bowtie2         | Path to corresponding bowtie2 index of reference genome.                                                                                               |
-| maxY            | Maximal Y value in local 4C cis plot.                                                                                                                  |
-| plotView        | Number of bp to plot around viewpoint in local 4C cis plot.                                                                                            |
-| xaxisUnit       | X-axis unit (Mb, Kb or bp).                                                                                                                            |
-| plotType        | Plots will be saved as PDF or PNG                                                                                                                      |
-| binSize         | Genome bin size used in the genome plot.                                                                                                               |
-| qualityCutoff  | Q-score. Trim 3-end of all sequences using a sliding window as soon as 2 of 5 nucleotides has quality encoding less than the Q-score. 0 = no trimming. |
-| trimLength     | Trim reads to defined capture length from 3-end. 0 = no trimming.                                                                                      |
-| minAmountReads | Minimum amount of reads containing the primer sequence. If less reads are identified the experiment will not be further processed.                     |
-| readsQuality   | Bowtie2 minimum quality mapped reads.                                                                                                                  |
-| mapUnique     | Extract uniquely mapped reads, based on the lack of XS tag.                                                                                            |
-| cores          | Number of cores for parallelization.                                                                                                                   |
-| wSize          | The running mean window size.                                                                                                                          |
-| nTop           | Top fragments discarded for normalization.                                                                                                             |
-| nonBlind      | Only keep non-blind fragments.                                                                                                                         |
-| wig           | Create wig files for all samples.                                                                                                                      |
-| plot          | Create viewpoint coverage plot for all samples.                                                                                                        |
-| genomePlot    | Create genomeplot for all samples (only possible if analysis is “all” in vpFile).                                                                      |
-| tsv           | Create tab separated value file for all samples                                                                                                        |
-| bins          | Count reads for binned regions.                                                                                                                        |
-| mismatchMax   | The maximum number of mismatches allowed during demultiplexing.                                                                                        |
+| **Name          | Description**                                                                                                                                                                      |
+|-----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| fragFolder      | Path to the folder containing the fragment end libraries of the reference genomes.                                                                                                 |
+| normalizeFactor | Reads mapped to the 4C fragment end library are normalized to account for sequencing depth according to the normalizeFactor.                                                       |
+| enzymes         | Enzyme names used in the viewpoint file and its corresponding recognition motif.                                                                                                   |
+| genomes         | Genome names used in the viewpoint file plus corresponding BSgenome package.                                                                                                       |
+| bowtie2         | Path to corresponding bowtie2 index of reference genome. The reference genome used to generate the index should match the reference genome that was used to generate the BSgenome. |
+| maxY            | Maximal Y value in local 4C cis plot.                                                                                                                                              |
+| plotView        | Number of bp to plot around viewpoint in local 4C cis plot.                                                                                                                        |
+| xaxisUnit       | X-axis unit (Mb, Kb or bp).                                                                                                                                                        |
+| plotType        | Plots will be saved as PDF or PNG                                                                                                                                                  |
+| binSize         | Genome bin size used in the genome plot.                                                                                                                                           |
+| qualityCutoff   | Q-score. Trim 3-end of all sequences using a sliding window as soon as 2 of 5 nucleotides has quality encoding less than the Q-score. 0 = no trimming.                             |
+| trimLength      | Trim reads to defined capture length from 3’-end. 0 = no trimming.                                                                                                                 |
+| minAmountReads  | Minimum amount of reads containing the primer sequence. If less reads are identified the experiment will not be further processed.                                                 |
+| readsQuality    | Bowtie2 minimum quality mapped reads.                                                                                                                                              |
+| mapUnique       | Extract uniquely mapped reads, based on the lack of XS tag.                                                                                                                        |
+| cores           | Number of cores for parallelization.                                                                                                                                               |
+| wSize           | The running mean window size.                                                                                                                                                      |
+| nTop            | Top fragments discarded for normalization.                                                                                                                                         |
+| nonBlind        | Only keep non-blind fragments.                                                                                                                                                     |
+| wig             | Create wig files for all samples.                                                                                                                                                  |
+| plot            | Create viewpoint coverage plot for all samples.                                                                                                                                    |
+| genomePlot      | Create genomeplot for all samples (only possible if analysis is “all” in vpFile).                                                                                                  |
+| tsv             | Create tab separated value file for all samples                                                                                                                                    |
+| bins            | Count reads for binned regions.                                                                                                                                                    |
+| mismatchMax     | The maximum number of mismatches allowed during demultiplexing.                                                                                                                    |
   
   **Table 1.** Description of parameters that can be defined in the configuration file.
   
@@ -88,17 +88,18 @@ Download the latest version of the pipeline from this git repository using:
 <BR>
  
 
-| **Name**         | **Description**                                                                                                                                                                                                                                                     |
-|--------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| expname      | Unique experiment name.                                                                                                                                                                                                                                         |
-| primer       | Primer sequence.                                                                                                                                                                                                                                                |
-| firstenzyme  | First restriction enzyme name (nearest to reading primer)                                                                                                                                                                                                       |
-| secondenzyme | Second restriction enzyme name.                                                                                                                                                                                                                                 |
-| genome       | Reference genome of interest.                                                                                                                                                                                                                                   |
-| vpchr        | The chromosome that contains the viewpoint (See note 13).                                                                                                                                                                                                       |
-| vppos        | Coordinate of viewpoint position. Any position within the VP can be used except the RE motifs (see note 13).                                                                                                                                                    |
-| analysis     | The final output tables will contain all reads (all) or only the reads that have been mapped to the VP chromosome (cis). For most analysis cis is sufficient and the generated output files will be smaller and therefore easier to process on local computers. |
-| fastq        | Name of the FASTQ file.                                                                                                                                                                                                                                         |
+| **Name              | Description**                                                                                                                                                                                                                                                                                  |
+|-------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| expname           | Unique experiment name.                                                                                                                                                                                                                                                                      |
+| primer            | Primer sequence.                                                                                                                                                                                                                                                                             |
+| firstenzyme       | First restriction enzyme name (nearest to reading primer)                                                                                                                                                                                                                                    |
+| secondenzyme      | Second restriction enzyme name.                                                                                                                                                                                                                                                              |
+| genome            | Reference genome of interest.                                                                                                                                                                                                                                                                |
+| vpchr             | The chromosome that contains the viewpoint (See note 15).                                                                                                                                                                                                                                    |
+| vppos             | Coordinate of viewpoint position. Any position within the VP can be used except the RE motifs (see note 15).                                                                                                                                                                                 |
+| analysis          | The final output tables will contain all reads (all) or only the reads that have been mapped to the VP chromosome (cis). For most analysis cis is sufficient and the generated output files will be smaller and therefore easier to process on local computers.                              |
+| fastq             | Name of the FASTQ file.                                                                                                                                                                                                                                                                      |
+| spacer (optional) | Spacer length. Number of nt included as spacer in the primer to enable out of phase sequencing. Default =0. The spacer sequence will not be used for demultiplexing. If the spacer sequence is used as a barcode include the sequence in the primer sequence and set the spacer length to 0. |
 
 **Table 3.** Description of parameters that are required in the viewpoint file for processing a 4C-seq experiment.
 
@@ -120,27 +121,27 @@ Rscript pipe4C.R –-vpFile [path to vpFile] --fqFolder [path to folder containi
 will run the pipeline using 8 cores and generates a wig file, a viewpoint plot and a genome plot as output, next to the default outputs.
 
 
-| Name            | Description                                                                                                                                        |
-|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
-| vpFile *       | path to the viewpoint file.                                                                                                                        |
-| fqFolder *     | path to the folder containing the FASTQ files.                                                                                                     |
-| outFolder *    | path to the output folder.                                                                                                                         |
-| confFile       | path to configuration file – default is conf.yml in folder containing the pipeline script.                                                         |
-| mismatchMax   | The maximum number of mismatches allowed during demultiplexing.                                                                                        |
-| qualityCutoff  | Q-score. Trim 3-end of all sequences using a sliding window as soon as 2 of 5 nucleotides has quality encoding less than the Q-score. Default = 0. |
-| trimLength     | Trim reads to defined capture length from 3-end. Default = 0 (no trimming).                                                                        |
-| minAmountReads | Minimum amount of reads containing the primer sequence. If less reads are identified the experiment will not be further processed.                 |
-| readsQuality   | Bowtie2 minimum quality mapped reads.                                                                                                              |
-| mapUnique     | Extract uniquely mapped reads, based on the lack of XS tag.                                                                                        |
-| cores          | Number of cores for parallelization.                                                                                                               |
-| wSize          | The running mean window size.                                                                                                                      |
-| nTop           | Top fragments discarded for normalization.                                                                                                         |
-| nonBlind      | Only keep non-blind fragments.                                                                                                                     |
-| wig           | Create wig files for all samples.                                                                                                                  |
-| plot          | Create viewpoint coverage plot for all samples.                                                                                                    |
-| genomeplot    | Create genomeplot for all samples (only possible if analysis is “all” in vpFile).                                                                  |
-| tsv           | Create tab separated value file for all samples                                                                                                    |
-| bins          | Count reads for binned regions.                                                                                                                    |
+| **Name           | Description**                                                                                                                          |
+|------------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| --vpFile *       | path to the viewpoint file.                                                                                                            |
+| --fqFolder *     | path to the folder containing the FASTQ files.                                                                                         |
+| --outFolder *    | path to the output folder.                                                                                                             |
+| --confFile       | path to configuration file – default is conf.yml in folder containing the pipeline script.                                             |
+| --mismatchMax    | The maximum number of mismatches allowed during demultiplexing.                                                                        |
+| --qualityCutoff  | Q-score. Trim 3-end of all sequences using a sliding window as soon as 2 of 5 nucleotides has quality encoding less than the Q-score.  |
+| --trimLength     | Trim reads to defined capture length from 3-end.                                                                                       |
+| --minAmountReads | Minimum amount of reads containing the primer sequence. If less reads are identified the experiment will not be further processed.     |
+| --readsQuality   | Bowtie2 minimum quality mapped reads.                                                                                                  |
+| --mapUnique      | Extract uniquely mapped reads, based on the lack of XS tag.                                                                            |
+| --cores          | Number of cores for parallelization.                                                                                                   |
+| --wSize          | The running mean window size.                                                                                                          |
+| --nTop           | Top fragments discarded for normalization.                                                                                             |
+| --nonBlind       | Only keep non-blind fragments.                                                                                                         |
+| --wig            | Create wig files for all samples.                                                                                                      |
+| --plot           | Create viewpoint coverage plot for all samples.                                                                                        |
+| --genomePlot     | Create genomeplot for all samples (only possible if analysis is “all” in vpFile).                                                      |
+| --tsv            | Create tab separated value file for all samples                                                                                        |
+| --bins           | Count reads for binned regions.                                                                                                        |
 
 **Table 4.** Description of parameters that are recognized by the pipe4C.R script. * are required. 
 
