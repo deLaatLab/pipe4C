@@ -557,12 +557,17 @@ olRanges <- function(query, subject) {
 }
 
 alignToFragends <- function( gAlign, fragments, firstcut ) {
+  
   strand( fragments ) <- ifelse( fragments$fe_strand==3, "-", "+" )
   ovl <- olRanges( query=fragments, subject=as( gAlign, "GRanges" ) )
   #remove sequences that overlap only with RE motif
   ovl <- ovl[ ovl$OLlength >= nchar( as.character( firstcut ) )+1 ]
   #Sequence need to start within unique fragment
   ovl <- ovl[ strand( ovl )=="+" & ovl$Sstart >= start( ovl ) | strand( ovl )=="-" & ovl$Send <= end( ovl ) ]
+  
+  #To do: Make it more strict. Reads should start directly at a restriction enzyme cutting site. 
+  #ovl <- ovl[ strand( ovl )=="+" & ovl$Sstart >= start( ovl ) & ovl$Sstart <= start( ovl )+nchar(as.character(firstcut))| strand( ovl )=="-" & ovl$Send <= end( ovl ) & & ovl$Send >= start( ovl )-nchar(as.character(firstcut)) ]
+  
   nReads <- tapply( ovl$Sindex, ovl$Qindex, length )
   fragments$reads <- 0
   fragments$reads[ as.numeric( names( nReads ) ) ] <- nReads
