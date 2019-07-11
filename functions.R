@@ -288,7 +288,7 @@ trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F,
     read.length.perc<-round(as.numeric(read.length.table/nReads*100),2)
     
     if ( read.length.perc < 60) {
-      error.msg <- paste0( "         ### WARNING: Max read length in only ", read.length.perc, "% of the reads." )
+      error.msg <- paste0( "         ### WARNING:", exp.name," - Max read length in only ", read.length.perc, "% of the reads." )
       write( error.msg, log.path, append=TRUE )
       message( error.msg )
     }
@@ -331,7 +331,7 @@ trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F,
       }
       
       if ( motifPos.perc < 90) {
-        error.msg <- paste0( "         ### WARNING: Most occuring position RE1 found in only", motifPos.perc, "% of the reads." )
+        error.msg <- paste0( "         ### WARNING: ", exp.name, " - Most occuring position RE1 found in only", motifPos.perc, "% of the reads." )
         write( error.msg, log.path, append=TRUE )
         message( error.msg )
       }
@@ -747,7 +747,7 @@ getFragMap <- function( vpChr_FragMap=NULL, firstcutter_FragMap="GATC", secondcu
   
   # here we want to check if we have the genome available for this analysis, in case yes, loading it, otherwise, advice on the 
   # missing genome and switch to the next guy
-  # message(paste("      >>> Create frag map for genome :",genome[i],"with re1 :",firstcutter,"and re2 :",secondcutter,"and captureLen", captureLen, "<<<"))
+  # message(paste("      >>> Create frag map for genome :",genome[i],"with re1 :",firstcutter," and re2 :",secondcutter,"and captureLen", captureLen, "<<<"))
   fragFile <- paste0( baseFolder_FragMap, genome_FragMap,"_", firstcutter_FragMap, "_", secondcutter_FragMap, ".rds" )
   
   if ( file.exists( fragFile ) ) {
