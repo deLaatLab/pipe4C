@@ -36,7 +36,7 @@ option_list = list(
   make_option(c("-o", "--outFolder"), type="character", default=NULL, 
               help="path to the output folder [required]", metavar="/path/to/output_folder/"),
   make_option(c("-c", "--confFile"), type="character", default="conf.yml", 
-              help="path to configuration file [default %default]", metavar="/path/to/output_folder/"),
+              help="path to configuration file [default %default]", metavar="/path/to/conf.yml/"),
   
   
   
