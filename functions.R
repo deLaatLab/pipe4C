@@ -1163,6 +1163,8 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
     readlenperc <- trim.FASTQ$readlenperc
     
     
+    
+    
     # 3. make BAM files
     
     message( "      >>> Alignment of reads to reference genome <<<" )
@@ -1217,12 +1219,11 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
                                     , normFactor=configuration$normFactor
                                     , wSize=wSize
                                     , nTop=nTop
-                                    , motifPosPerc=motifPosperc
+                                    , motifPosperc=motifPosperc
                                     , readlenperc=readlenperc
     )
   
-    
-    
+  
     vpInfo <- data.frame(
       name=exp.name[i]
       , Fastq=file.fastq
