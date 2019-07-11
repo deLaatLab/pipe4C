@@ -1218,9 +1218,9 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
                                     , wSize=wSize
                                     , nTop=nTop
                                     , motifPosPerc=motifPosperc
-                                    , readlenPerc=readlenperc
+                                    , readlenperc=readlenperc
     )
-    
+  
     
     
     vpInfo <- data.frame(
