@@ -221,6 +221,10 @@ demux.FASTQ <- function(VPinfo, FASTQ.F, FASTQ.demux.F, demux.log.path, overwrit
     # Read FastQ
     if (nrow(fq.df) > 0) {
       message(paste("      >>> Reading Fastq: ", file.fastq[i], " <<<"))
+      
+      
+      if (file.exists(paste0(FASTQ.F, "/", file.fastq[i]))) {
+      
       # then we stream the fastq files at 1,000,000 reads each time ( default )
       stream <- FastqStreamer((paste0(FASTQ.F, "/", file.fastq[i])))
       message(paste0("         ### ", fq.df$exp.name, " check for primer sequence ", fq.df$primer, 
@@ -243,9 +247,16 @@ demux.FASTQ <- function(VPinfo, FASTQ.F, FASTQ.demux.F, demux.log.path, overwrit
         }
       }
       close(stream)
+    
+    }else{
+      error.msg <- paste("      ### WARNING: File", file.fastq[i], " does not exist. Experiment skipped.")
+      write(error.msg, demux.log.path, append = TRUE)
+      message(error.msg)
+    }
     }
   }
 }
+
 
 trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F, cutoff, trim.length=0, log.path, min.amount.reads=1000){
   txt.tmp <- paste0( trim.F, exp.name, ".txt" )
