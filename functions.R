@@ -294,6 +294,16 @@ trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F,
     sequences <- sread( demux.fq )
     nReads <- length( sequences )
     
+    if ( nReads < min.amount.reads) {
+      error.msg <- paste0( "         ### ERROR: Less reads in FASTQ than set as minimum. Reads: ", nReads )
+      write( error.msg, log.path, append=TRUE )
+      message( error.msg )
+      message("         ### To continue alter minAmountRead argument")
+      return()
+    } else {
+      message( paste0( "         ### Total Reads: ", nReads ) )
+    }
+    
     read.length.table <- sort(table(width(demux.fq)), decreasing=TRUE)[1]
     read.length<-as.numeric(names(read.length.table))
     read.length.perc<-round(as.numeric(read.length.table/nReads*100),2)
@@ -307,15 +317,7 @@ trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F,
     
     
     
-    if ( nReads < min.amount.reads) {
-      error.msg <- paste0( "         ### ERROR: Less reads in FASTQ than set as minimum. Reads: ", nReads )
-      write( error.msg, log.path, append=TRUE )
-      message( error.msg )
-      message("         ### To continue alter minAmountRead argument")
-      return()
-    } else {
-      message( paste0( "         ### Total Reads: ", nReads ) )
-    }
+   
     
     #Find the most occuring position of the firstcutter
     #motif.1st.pos <- as.numeric( names( sort( table( regexpr( firstcutter, sequences ) ), decreasing=TRUE ) )[1] )
