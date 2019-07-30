@@ -295,7 +295,7 @@ trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F,
     nReads <- length( sequences )
     
     if ( nReads < min.amount.reads) {
-      error.msg <- paste0( "         ### ERROR: Less reads in FASTQ than set as minimum. Reads: ", nReads )
+      error.msg <- paste0( "         ### ERROR: ",exp.name," - Less reads in FASTQ than set as minimum. Reads: ", nReads )
       write( error.msg, log.path, append=TRUE )
       message( error.msg )
       message("         ### To continue alter minAmountRead argument")
