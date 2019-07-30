@@ -432,7 +432,7 @@ makeBAM <- function( exp.name, BAM.F, NCORES, Bowtie2Folder, genome, txt.tmp, lo
       write(bowtie.output, bowtie.log.path, append=TRUE)    
       #Check whether BAM in truncated (Due to pipe problems?). If truncated try 5 times.
       if (length(grep("truncated file", bowtie.output)) == 1) {
-        error.msg <- paste("         ### ERROR: Truncated BAM file. Repeating Bowtie mapping...")
+        error.msg <- paste("         ### ERROR: ",exp.name," - Truncated BAM file. Repeating Bowtie mapping...")
         message(error.msg)
         write(error.msg, log.path, append=TRUE)
         check.trunc <- check.trunc + 1
@@ -484,7 +484,7 @@ makeBAM <- function( exp.name, BAM.F, NCORES, Bowtie2Folder, genome, txt.tmp, lo
       write(bowtie.output, bowtie.log.path, append=TRUE)
       #Check whether BAM in truncated. If truncated try 10 times.
       if (length(grep("truncated file", bowtie.output)) == 1) {
-        error.msg <-paste0("         ### ERROR: Truncated BAM file. Repeating Bowtie mapping...")
+        error.msg <-paste0("         ### ERROR: ",exp.name," - Truncated BAM file. Repeating Bowtie mapping...")
         message(error.msg)
         write(error.msg, log.path, append=TRUE)
         check.trunc <- check.trunc + 1
