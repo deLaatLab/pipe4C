@@ -1105,7 +1105,20 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
   
   for ( i in 1:length( exp.name ) ) {
     
-    message( paste0( "   +++ experiment: ", exp.name[i], " +++" ) ) 
+    message( paste0( "   +++ experiment: ", exp.name[i], " +++" ) )
+    
+    
+    #skip already generated files
+    rdsFile<-paste0( RDS.F, exp.name[i], ".rds" )
+    if (file.exists( rdsFile ) ) {
+      error.msg <- paste("         ### WARNING: rds file", exp.name[i], "already exist, skipping experiment.")
+      write( error.msg, log.path, append=TRUE )
+      message( error.msg )
+      next
+    }
+    
+    
+    
     primer.sequence <- primer[i]
     
     file.fastq <- paste0( FASTQ.demux.F, exp.name[i], ".fastq.gz" )
