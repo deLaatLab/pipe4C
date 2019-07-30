@@ -100,6 +100,8 @@ if (is.null(argsL$outFolder)){
 #################################################################################################################
 message( '\n------ Loading functions and configuration file' )
 
+#.libPaths( c( .libPaths(), "/pipeline4C/BSgenomes/installed/") )
+
 if( !suppressMessages(require( "ShortRead", character.only=TRUE ) ) ) stop( "Package not found: ShortRead" )
 if( !suppressMessages(require( "GenomicRanges", character.only=TRUE ) ) ) stop( "Package not found: GenomicRanges" )
 if( !suppressMessages(require( "GenomicAlignments", character.only=TRUE ) ) ) stop( "Package not found: GenomicAlignments" )
