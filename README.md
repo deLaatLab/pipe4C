@@ -4,6 +4,11 @@ A pipeline that processes multiplexed 4C-seq reads directly from FASTQ files. It
 
 If you have any difficulties using the pipeline, please do not hesitate to contact us (delaatbioinf@hubrecht.eu).
 
+## Citation
+Krijger PHL, Geeven G, Bianchi V, Hilvering CRE, de Laat W. 4C-seq from beginning to end: A detailed protocol for sample preparation and data analysis. Methods. 2019 Jul 26. pii: S1046-2023(18)30474-2. doi: 10.1016/j.ymeth.2019.07.014. 
+https://doi.org/10.1016/j.ymeth.2019.07.014
+
+
 ## Prerequisites
 
 - A Unix like shell (e.g. Bash v3.2+)
