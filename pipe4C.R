@@ -61,7 +61,7 @@ option_list = list(
   
   make_option(c("-u", "--mapUnique"), action="store_true", default=FALSE,
               help="Extract uniquely mapped reads, based on the lack of XS tag."),
-  make_option(c("-nb", "--nonBlind"), action="store_true", default=FALSE,
+  make_option(c("-i","--nonBlind"), action="store_true", default=FALSE,
               help="Only keep non-blind fragments"),
   make_option(c("-w", "--wig"), action="store_true", default=FALSE,
               help="create wig files for all samples"),
