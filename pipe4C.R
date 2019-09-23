@@ -26,7 +26,7 @@ get_script_path <- function(path=NULL) {
 #################################################################################################################
 ### PARSING THE INPUT ###########################################################################################
 #################################################################################################################
-if( !suppressMessages(require( "optparse", character.only = TRUE ) ) ) stop( "Package not found: argparse" )
+if( !suppressMessages(require( "optparse", character.only = TRUE ) ) ) stop( "Package not found: optparse" )
 
 option_list = list(
   make_option(c("-v", "--vpFile"), type="character", default=NULL, 
