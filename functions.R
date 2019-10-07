@@ -34,22 +34,33 @@ createConfig <- function( confFile=argsL$confFile ){
     name=as.character( sapply( configF$enzymes, function(x) strsplit( x, split=' ' )[[1]][1] ) )
     , RE.seq=as.character( sapply( configF$enzymes, function(x) strsplit( x, split=' ' )[[1]][2] ) )
     , stringsAsFactors=FALSE 
-    , row.names=1
+    #, row.names=1 #This does not work if there is only 1 row.
   )
+  
+  row.names(enzymes) <- enzymes$name
+  enzymes[1] <- NULL
+  
   
   genomes <- data.frame( 
     genome=as.character( sapply( configF$genomes, function(x) strsplit( x, split=' ' )[[1]][1] ) )
     , BSgenome=as.character( sapply( configF$genomes, function(x) strsplit( x, split=' ' )[[1]][2] ) )
     , stringsAsFactors=FALSE 
-    , row.names=1
+    #, row.names=1
   )
+  
+  row.names(genomes) <- genomes$genome
+  genomes[1] <- NULL
+  
   
   bt2Genomes <- data.frame( 
     genome=as.character( sapply( configF$bowtie2, function(x) strsplit( x, split=' ' )[[1]][1] ) )
     , path=as.character( sapply( configF$bowtie2, function(x) strsplit( x, split=' ' )[[1]][2] ) )
     , stringsAsFactors=FALSE 
-    , row.names=1
+    #, row.names=1
   )
+  
+  row.names(bt2Genomes) <- bt2Genomes$genome
+  bt2Genomes[1] <- NULL
   
   return( list( baseFolder=baseFolder
                 ,normFactor=normFactor
