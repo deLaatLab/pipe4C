@@ -13,7 +13,7 @@ https://doi.org/10.1016/j.ymeth.2019.07.014
 
 - A Unix like shell (e.g. Bash v3.2+)
 - Bowtie2 v2.3+ available from http://bowtie-bio.sourceforge.net/bowtie2/.
-- SAMtools v1.3+ available from http://www.htslib.org/.
+- SAMtools v1.3+ available from http://www.htslib.org/. **note:** The pipeline will produce a sort error when older versions are used.
 - R v3.5+ available from https://www.r-project.org/.
 - The following R packages available from CRAN:
   - optparse
@@ -176,7 +176,8 @@ Download the pipeline and example files using the following command.
 
     Rscript pipe4C.R --vpFile=./example/VPinfo.txt --fqFolder=./example/ --outFolder=./outF/ --cores 8 --plot --wig
 
-This will run the pipeline using 8 cores and generates a viewpoint plot and wig file as output, next to the default outputs.
+This will run the pipeline using 8 cores and generates a viewpoint plot and wig file as output, next to the default outputs. **note:** Running multiple pipe4C processes in parallel that are using the same fragFolder in the conf.yml can corrupt the fragmented genome file. 
+ 
 
 ## Let's have a look at the generated files
 #### The report file
