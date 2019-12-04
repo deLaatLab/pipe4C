@@ -25,6 +25,9 @@ createConfig <- function( confFile=argsL$confFile ){
   tsv <- configF$tsv
   bins <- configF$bins
   mmMax <- configF$mismatchMax
+  chr_random <- configF$chr_random
+  chrUn <- configF$chrUn
+  ChrM <- configF$ChrM
   
   
   
@@ -87,6 +90,10 @@ createConfig <- function( confFile=argsL$confFile ){
                 ,tsv=tsv
                 ,bins=bins
                 ,mmMax=mmMax
+                ,chr_random <- chr_random
+                ,chrUn <- chrUn
+                ,ChrM <- ChrM
+                
                 
   ) )
 }
@@ -605,7 +612,8 @@ alignToFragends <- function( gAlign, fragments, firstcut ) {
   return( fragments )
 }
 
-Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseFolder_Digest, config_genomes ) {
+Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseFolder_Digest, config_genomes
+                    ,chr_random,chrUn,ChrM) {
   firstcutter <- as.character( firstcutter_Digest )
   secondcutter <- as.character( secondcutter_Digest )
   
@@ -616,10 +624,22 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
     assign( 'frag.genome', base::get( config_genomes[ assemblyName, ] ) )
     
     chr <- unique( seqnames( frag.genome ) )
-    chr <- chr[ grep( pattern="_random", x=chr, invert=TRUE ) ]
+    
+    #The "hap" ones are alternate assemblies for certain regions.DO NOT USE THE *hap* files !!!!
     chr <- chr[ grep( pattern="_hap", x=chr, invert=TRUE ) ]
-    chr <- chr[ grep( pattern="chrUn_", x=chr, invert=TRUE ) ]
-    chr <- chr[ grep( pattern="chrM", x=chr, invert=TRUE ) ]
+    
+    #Make sure Bowtie2 index does not contain these chr
+    if (chr_random==FALSE){
+      chr <- chr[ grep( pattern="_random", x=chr, invert=TRUE ) ]
+    }
+    if (chrUn==FALSE){
+      chr <- chr[ grep( pattern="chrUn_", x=chr, invert=TRUE ) ]
+      }
+    if (ChrM==FALSE){
+      chr <- chr[ grep( pattern="chrM", x=chr, invert=TRUE ) ]  
+    }
+     
+    
     
     outFrags <- GRanges()
     for ( i in seq_along( chr ) ){
@@ -767,7 +787,9 @@ getUniqueFragends <- function( fragsGR_Unique, firstcutter_Unique="GATC", second
   return( fragsGR2 )
 }
 
-getFragMap <- function( vpChr_FragMap=NULL, firstcutter_FragMap="GATC", secondcutter_FragMap="GTAC", genome_FragMap="hg19", captureLen_FragMap=60, nThreads_FragMap=10, baseFolder_FragMap, Bowtie2Folder, config_genomes ) {
+getFragMap <- function( vpChr_FragMap=NULL, firstcutter_FragMap="GATC", secondcutter_FragMap="GTAC", genome_FragMap="hg19"
+                        , captureLen_FragMap=60, nThreads_FragMap=10, baseFolder_FragMap, Bowtie2Folder, config_genomes
+                        ,chr_random=chr_random, chrUn=chrUn, ChrM = ChrM) {
   
   # here we want to check if we have the genome available for this analysis, in case yes, loading it, otherwise, advice on the 
   # missing genome and switch to the next guy
@@ -790,7 +812,8 @@ getFragMap <- function( vpChr_FragMap=NULL, firstcutter_FragMap="GATC", secondcu
         secondcutter_FragMap
       )
     )
-    fragsGR <- Digest( assemblyName=genome_FragMap, firstcutter_Digest=firstcutter_FragMap, secondcutter_Digest=secondcutter_FragMap, baseFolder_Digest=baseFolder_FragMap, config_genomes=config_genomes ) 
+    fragsGR <- Digest( assemblyName=genome_FragMap, firstcutter_Digest=firstcutter_FragMap, secondcutter_Digest=secondcutter_FragMap, baseFolder_Digest=baseFolder_FragMap, 
+                       config_genomes=config_genomes, chr_random=chr_random, chrUn=chrUn, ChrM = ChrM) 
   }
   
   message('         ### Retrieve and store the unique fragends')
@@ -1021,6 +1044,7 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
   bins=configuration$bins
   mmMax=configuration$mmMax
   normFactor=configuration$normFactor
+
   
   # create folders
   
@@ -1243,6 +1267,9 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
       ,baseFolder_FragMap=configuration$baseFolder
       ,Bowtie2Folder=configuration$bt2Genomes[ genome[i], ]
       ,config_genomes=configuration$genomes
+      ,chr_random=configuration$chr_random
+      ,chrUn=configuration$chrUn
+      ,ChrM=configuration$ChrM
     )
     
     
