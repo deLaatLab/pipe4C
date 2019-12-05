@@ -18,7 +18,7 @@ default:
  mismatchMax : 0
  chr_random : FALSE
  chrUn : FALSE
- ChrM : FALSE
+ chrM : FALSE
  
  enzymes:
   -
