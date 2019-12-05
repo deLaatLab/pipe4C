@@ -280,7 +280,7 @@ trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F,
   txt.tmp <- paste0( trim.F, exp.name, ".txt" )
   info.file <- paste0( trim.F, exp.name, ".info.rds" )
   if ( file.exists( txt.tmp ) & file.exists( info.file ) ) {
-    error.msg <- paste0( "         ### WARNING: trimmed file", exp.name, "already exists, continuing with exisiting file." )
+    error.msg <- paste( "         ### WARNING: trimmed file", exp.name, "already exists, continuing with exisiting file." )
     write( error.msg, log.path, append=TRUE )
     message( error.msg )
     return( readRDS(info.file) ) 
