@@ -90,9 +90,9 @@ createConfig <- function( confFile=argsL$confFile ){
                 ,tsv=tsv
                 ,bins=bins
                 ,mmMax=mmMax
-                ,chr_random <- chr_random
-                ,chrUn <- chrUn
-                ,chrM <- chrM
+                ,chr_random=chr_random
+                ,chrUn=chrUn
+                ,chrM=chrM
                 
                 
   ) )
