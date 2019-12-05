@@ -16,6 +16,9 @@ default:
  tsv : FALSE
  bins : FALSE
  mismatchMax : 0
+ chr_random : FALSE
+ chrUn : FALSE
+ ChrM : FALSE
  
  enzymes:
   -
