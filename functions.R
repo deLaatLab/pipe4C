@@ -1561,42 +1561,38 @@ doPeakC <- function(rdsFiles, vpRegion=2e6, wSize=21,alphaFDR=0.05,qWd=1.5,qWr=1
   
   num.exp <- length(rdsFiles)
   
+  message("Performing peakC on ",num.exp, " experiments.")
+  
   # IF num.exp>1, FIRST CHECK IF vppos is equal for all exps !! 
   
   if(num.exp>1) {
     
+    peakCDat <- list()
     vppos <- vector()
     
     for(i in 1:num.exp) {
       
       if(file.exists(rdsFiles[i])) {
-        
-        vppos[i] <- readRDS(rdsFiles[i])$vpInfo$pos
-        vpChr <- as.vector(readRDS(rdsFiles[i])$vpInfo$chr)
-        
-      } else {
-        
+        message("Loading data for experiment: ", rdsFiles[i])
+        rds <- readRDS(rdsFiles[i])
+        vppos[i] <- rds$vpInfo$pos
+        vpChr <- as.vector(rds$vpInfo$chr)
+        peakCDat[[i]] <- getVPReads(rds=rds,vpRegion=vpRegion)
+      }else {
         stop( paste0("File not found: ",rdsFiles[i]) )
       }
       
     }
     
-   
+    
     vppos <- unique(vppos)
+    vpChr <- unique(vpChr)
+    
+    message("viewpoint position: ",vppos)
+    
     
     if(length(vppos)==1){
-      
-      peakCDat <- list()
-      
-      for(i in 1:num.exp) {
-        
-        rds <- readRDS(rdsFiles[i])
-        peakCDat[[i]] <- getVPReads(rds=rds,vpRegion=vpRegion)
-        
-      }
-      
       resPeakC <- suppressWarnings(combined.analysis(data=peakCDat,num.exp=num.exp,vp.pos=vppos,wSize=wSize,alphaFDR=alphaFDR,qWr=qWr,minDist=minDist))
-      
     }else{
       stop(paste0("Viewpoint positions not unique"))
     }
@@ -1609,9 +1605,7 @@ doPeakC <- function(rdsFiles, vpRegion=2e6, wSize=21,alphaFDR=0.05,qWd=1.5,qWr=1
     rds <- readRDS(rdsFiles[1])
     vppos <- rds$vpInfo$pos
     vpChr <- as.vector(rds$vpInfo$chr)
-    
     peakCDat <- getVPReads(rds=rds,vpRegion=vpRegion)
-    
     resPeakC <- suppressWarnings(single.analysis(data=peakCDat,vp.pos=vppos,wSize=wSize,qWd=qWd,qWr=qWr,minDist=minDist))
     
   }
@@ -1623,7 +1617,6 @@ doPeakC <- function(rdsFiles, vpRegion=2e6, wSize=21,alphaFDR=0.05,qWd=1.5,qWr=1
   return(resPeakC)
   
 }
-
 
 
 embryo <- function(){
