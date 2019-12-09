@@ -27,7 +27,7 @@ createConfig <- function( confFile=argsL$confFile ){
   mmMax <- configF$mismatchMax
   chr_random <- configF$chr_random
   chrUn <- configF$chrUn
-  ChrM <- configF$ChrM
+  chrM <- configF$chrM
   
   
   
@@ -90,9 +90,9 @@ createConfig <- function( confFile=argsL$confFile ){
                 ,tsv=tsv
                 ,bins=bins
                 ,mmMax=mmMax
-                ,chr_random <- chr_random
-                ,chrUn <- chrUn
-                ,ChrM <- ChrM
+                ,chr_random=chr_random
+                ,chrUn=chrUn
+                ,chrM=chrM
                 
                 
   ) )
@@ -280,7 +280,7 @@ trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F,
   txt.tmp <- paste0( trim.F, exp.name, ".txt" )
   info.file <- paste0( trim.F, exp.name, ".info.rds" )
   if ( file.exists( txt.tmp ) & file.exists( info.file ) ) {
-    error.msg <- paste0( "         ### WARNING: trimmed file", exp.name, "already exists, continuing with exisiting file." )
+    error.msg <- paste( "         ### WARNING: trimmed file", exp.name, "already exists, continuing with exisiting file." )
     write( error.msg, log.path, append=TRUE )
     message( error.msg )
     return( readRDS(info.file) ) 
@@ -613,7 +613,7 @@ alignToFragends <- function( gAlign, fragments, firstcut ) {
 }
 
 Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseFolder_Digest, config_genomes
-                    ,chr_random,chrUn,ChrM) {
+                    ,chr_random,chrUn,chrM) {
   firstcutter <- as.character( firstcutter_Digest )
   secondcutter <- as.character( secondcutter_Digest )
   
@@ -635,7 +635,7 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
     if (chrUn==FALSE){
       chr <- chr[ grep( pattern="chrUn_", x=chr, invert=TRUE ) ]
       }
-    if (ChrM==FALSE){
+    if (chrM==FALSE){
       chr <- chr[ grep( pattern="chrM", x=chr, invert=TRUE ) ]  
     }
      
@@ -789,7 +789,7 @@ getUniqueFragends <- function( fragsGR_Unique, firstcutter_Unique="GATC", second
 
 getFragMap <- function( vpChr_FragMap=NULL, firstcutter_FragMap="GATC", secondcutter_FragMap="GTAC", genome_FragMap="hg19"
                         , captureLen_FragMap=60, nThreads_FragMap=10, baseFolder_FragMap, Bowtie2Folder, config_genomes
-                        ,chr_random=chr_random, chrUn=chrUn, ChrM = ChrM) {
+                        ,chr_random=chr_random, chrUn=chrUn, chrM = chrM) {
   
   # here we want to check if we have the genome available for this analysis, in case yes, loading it, otherwise, advice on the 
   # missing genome and switch to the next guy
@@ -813,7 +813,7 @@ getFragMap <- function( vpChr_FragMap=NULL, firstcutter_FragMap="GATC", secondcu
       )
     )
     fragsGR <- Digest( assemblyName=genome_FragMap, firstcutter_Digest=firstcutter_FragMap, secondcutter_Digest=secondcutter_FragMap, baseFolder_Digest=baseFolder_FragMap, 
-                       config_genomes=config_genomes, chr_random=chr_random, chrUn=chrUn, ChrM = ChrM) 
+                       config_genomes=config_genomes, chr_random=chr_random, chrUn=chrUn, chrM = chrM) 
   }
   
   message('         ### Retrieve and store the unique fragends')
@@ -1269,7 +1269,7 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
       ,config_genomes=configuration$genomes
       ,chr_random=configuration$chr_random
       ,chrUn=configuration$chrUn
-      ,ChrM=configuration$ChrM
+      ,chrM=configuration$chrM
     )
     
     
