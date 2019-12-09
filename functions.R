@@ -1476,8 +1476,14 @@ getVPReads <- function(rds,vpRegion=2e6) {
   
   reads <- rds$reads
   vppos <- rds$vpInfo$pos
+  vpChr <- rds$vpInfo$chr
   
-  vpGR <- reads[unique(queryHits(findOverlaps(ranges(reads),resize(IRanges(vppos,vppos),width=vpRegion,fix="center"))))]
+  zoom <- GRanges( seqnames=vpChr, resize(IRanges(vppos,vppos),width=vpRegion,fix="center") )
+  
+  #vpGR <- reads[unique(queryHits(findOverlaps(ranges(reads),resize(IRanges(vppos,vppos),width=vpRegion,fix="center"))))]
+  
+  vpGR <- reads[unique(queryHits(findOverlaps(reads,zoom)))]
+  
   peakCDat <- data.frame(pos=vpGR$pos,reads=vpGR$reads)
   
   return(peakCDat)
@@ -1575,6 +1581,7 @@ doPeakC <- function(rdsFiles, vpRegion=2e6, wSize=21,alphaFDR=0.05,qWd=1.5,qWr=1
       
     }
     
+   
     vppos <- unique(vppos)
     
     if(length(vppos)==1){
@@ -1590,6 +1597,8 @@ doPeakC <- function(rdsFiles, vpRegion=2e6, wSize=21,alphaFDR=0.05,qWd=1.5,qWr=1
       
       resPeakC <- suppressWarnings(combined.analysis(data=peakCDat,num.exp=num.exp,vp.pos=vppos,wSize=wSize,alphaFDR=alphaFDR,qWr=qWr,minDist=minDist))
       
+    }else{
+      stop(paste0("Viewpoint positions not unique"))
     }
     
     
