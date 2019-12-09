@@ -168,6 +168,7 @@ if (argsL$bins){
 }
 
 
+#Check whether Bowtie2 and samtools are installed..
 
 
 
