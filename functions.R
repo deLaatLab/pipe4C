@@ -306,8 +306,7 @@ trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F,
       #Maybe do this filtering afterwards? read len=Cap length?? (or a few nt less?)
     } #close cutoff
     
-    #Trim sequences 
-    #read.length <- as.numeric(names(which.max(table(width(demux.fq)))))
+
     
     sequences <- sread( demux.fq )
     nReads <- length( sequences )
@@ -322,9 +321,20 @@ trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F,
       message( paste0( "         ### Total Reads: ", nReads ) )
     }
     
-    read.length.table <- sort(table(width(demux.fq)), decreasing=TRUE)[1]
-    read.length<-as.numeric(names(read.length.table))
-    read.length.perc<-round(as.numeric(read.length.table/nReads*100),2)
+    
+    if ( trim.length > 0 ){
+      sequences <- substr( sequences, 1, ( trim.length-1+motif.1st.pos ) )
+      
+      read.length.table <- sort(table(width(sequences)), decreasing=TRUE)[1]
+      read.length<-as.numeric(names(read.length.table))
+      read.length.perc<-round(as.numeric(read.length.table/nReads*100),2)
+      
+    }else{
+      read.length.table <- sort(table(width(demux.fq)), decreasing=TRUE)[1]
+      read.length<-as.numeric(names(read.length.table))
+      read.length.perc<-round(as.numeric(read.length.table/nReads*100),2)
+    }
+    
     
     if ( read.length.perc < 60) {
       error.msg <- paste0( "         ### WARNING:", exp.name," - Max read length in only ", read.length.perc, "% of the reads." )
@@ -332,9 +342,7 @@ trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F,
       message( error.msg )
     }
     
-    
-    
-    
+
    
     
     #Find the most occuring position of the firstcutter
@@ -371,17 +379,7 @@ trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F,
       
       
       
-      if ( trim.length > 0 ){
-        sequences <- substr( sequences, 1, ( trim.length-1+motif.1st.pos ) )
-        #read.length <- as.numeric(names(which.max(table(width(sequences)))))
-        
-        read.length.table <- sort(table(width(demux.fq)), decreasing=TRUE)[1]
-        read.length<-as.numeric(names(read.length.table))
-        read.length.perc<-round(as.numeric(read.length.table/nReads*100),2)
-        
-        
-        
-      }
+     
       
       
       # Trim non-blind fragend sequences based on 2nd cutter 
