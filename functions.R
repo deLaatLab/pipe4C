@@ -322,6 +322,12 @@ trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F,
     }
     
     
+    #Find the most occuring position of the firstcutter
+    motifPos<-sort( table( regexpr( firstcutter, sequences ) ), decreasing=TRUE)[1]
+    motif.1st.pos<-as.numeric( names(motifPos))
+    motifPos.perc<-round(as.numeric(motifPos/nReads*100),2)
+    
+    
     if ( trim.length > 0 ){
       sequences <- substr( sequences, 1, ( trim.length-1+motif.1st.pos ) )
       
@@ -345,14 +351,7 @@ trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F,
 
    
     
-    #Find the most occuring position of the firstcutter
-    #motif.1st.pos <- as.numeric( names( sort( table( regexpr( firstcutter, sequences ) ), decreasing=TRUE ) )[1] )
-    
-    
-    motifPos<-sort( table( regexpr( firstcutter, sequences ) ), decreasing=TRUE)[1]
-    motif.1st.pos<-as.numeric( names(motifPos))
-    motifPos.perc<-round(as.numeric(motifPos/nReads*100),2)
-    
+   
     
     
     motif.1st.pos.2nd <- FALSE
