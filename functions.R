@@ -1256,7 +1256,7 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
     
     
     
-    message( paste0("      >>> Create frag map for genome:", genome[i], " with RE1:", firstcutter, "and RE2:", secondcutter, " and capture length:", captureLen, " <<<" ) )
+    message( paste0("      >>> Create frag map for genome: ", genome[i], " with RE1: ", firstcutter, " and RE2: ", secondcutter, " and capture length:", captureLen, " <<<" ) )
     frags <- getFragMap(
       vpChr_FragMap=NULL
       ,firstcutter_FragMap=firstcutter
