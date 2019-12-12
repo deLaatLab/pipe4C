@@ -306,8 +306,7 @@ trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F,
       #Maybe do this filtering afterwards? read len=Cap length?? (or a few nt less?)
     } #close cutoff
     
-    #Trim sequences 
-    #read.length <- as.numeric(names(which.max(table(width(demux.fq)))))
+
     
     sequences <- sread( demux.fq )
     nReads <- length( sequences )
@@ -322,9 +321,26 @@ trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F,
       message( paste0( "         ### Total Reads: ", nReads ) )
     }
     
-    read.length.table <- sort(table(width(demux.fq)), decreasing=TRUE)[1]
-    read.length<-as.numeric(names(read.length.table))
-    read.length.perc<-round(as.numeric(read.length.table/nReads*100),2)
+    
+    #Find the most occuring position of the firstcutter
+    motifPos<-sort( table( regexpr( firstcutter, sequences ) ), decreasing=TRUE)[1]
+    motif.1st.pos<-as.numeric( names(motifPos))
+    motifPos.perc<-round(as.numeric(motifPos/nReads*100),2)
+    
+    
+    if ( trim.length > 0 ){
+      sequences <- substr( sequences, 1, ( trim.length-1+motif.1st.pos ) )
+      
+      read.length.table <- sort(table(width(sequences)), decreasing=TRUE)[1]
+      read.length<-as.numeric(names(read.length.table))
+      read.length.perc<-round(as.numeric(read.length.table/nReads*100),2)
+      
+    }else{
+      read.length.table <- sort(table(width(demux.fq)), decreasing=TRUE)[1]
+      read.length<-as.numeric(names(read.length.table))
+      read.length.perc<-round(as.numeric(read.length.table/nReads*100),2)
+    }
+    
     
     if ( read.length.perc < 60) {
       error.msg <- paste0( "         ### WARNING:", exp.name," - Max read length in only ", read.length.perc, "% of the reads." )
@@ -332,19 +348,10 @@ trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F,
       message( error.msg )
     }
     
-    
-    
-    
+
    
     
-    #Find the most occuring position of the firstcutter
-    #motif.1st.pos <- as.numeric( names( sort( table( regexpr( firstcutter, sequences ) ), decreasing=TRUE ) )[1] )
-    
-    
-    motifPos<-sort( table( regexpr( firstcutter, sequences ) ), decreasing=TRUE)[1]
-    motif.1st.pos<-as.numeric( names(motifPos))
-    motifPos.perc<-round(as.numeric(motifPos/nReads*100),2)
-    
+   
     
     
     motif.1st.pos.2nd <- FALSE
@@ -371,17 +378,7 @@ trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F,
       
       
       
-      if ( trim.length > 0 ){
-        sequences <- substr( sequences, 1, ( trim.length-1+motif.1st.pos ) )
-        #read.length <- as.numeric(names(which.max(table(width(sequences)))))
-        
-        read.length.table <- sort(table(width(demux.fq)), decreasing=TRUE)[1]
-        read.length<-as.numeric(names(read.length.table))
-        read.length.perc<-round(as.numeric(read.length.table/nReads*100),2)
-        
-        
-        
-      }
+     
       
       
       # Trim non-blind fragend sequences based on 2nd cutter 
@@ -1479,8 +1476,14 @@ getVPReads <- function(rds,vpRegion=2e6) {
   
   reads <- rds$reads
   vppos <- rds$vpInfo$pos
+  vpChr <- rds$vpInfo$chr
   
-  vpGR <- reads[unique(queryHits(findOverlaps(ranges(reads),resize(IRanges(vppos,vppos),width=vpRegion,fix="center"))))]
+  zoom <- GRanges( seqnames=vpChr, resize(IRanges(vppos,vppos),width=vpRegion,fix="center") )
+  
+  #vpGR <- reads[unique(queryHits(findOverlaps(ranges(reads),resize(IRanges(vppos,vppos),width=vpRegion,fix="center"))))]
+  
+  vpGR <- reads[unique(queryHits(findOverlaps(reads,zoom)))]
+  
   peakCDat <- data.frame(pos=vpGR$pos,reads=vpGR$reads)
   
   return(peakCDat)
@@ -1558,41 +1561,40 @@ doPeakC <- function(rdsFiles, vpRegion=2e6, wSize=21,alphaFDR=0.05,qWd=1.5,qWr=1
   
   num.exp <- length(rdsFiles)
   
+  message("Performing peakC on ",num.exp, " experiments.")
+  
   # IF num.exp>1, FIRST CHECK IF vppos is equal for all exps !! 
   
   if(num.exp>1) {
     
+    peakCDat <- list()
     vppos <- vector()
     
     for(i in 1:num.exp) {
       
       if(file.exists(rdsFiles[i])) {
-        
-        vppos[i] <- readRDS(rdsFiles[i])$vpInfo$pos
-        vpChr <- as.vector(readRDS(rdsFiles[i])$vpInfo$chr)
-        
-      } else {
-        
+        message("Loading data for experiment: ", rdsFiles[i])
+        rds <- readRDS(rdsFiles[i])
+        vppos[i] <- rds$vpInfo$pos
+        vpChr <- as.vector(rds$vpInfo$chr)
+        peakCDat[[i]] <- getVPReads(rds=rds,vpRegion=vpRegion)
+      }else {
         stop( paste0("File not found: ",rdsFiles[i]) )
       }
       
     }
     
+    
     vppos <- unique(vppos)
+    vpChr <- unique(vpChr)
+    
+    message("viewpoint position: ",vppos)
+    
     
     if(length(vppos)==1){
-      
-      peakCDat <- list()
-      
-      for(i in 1:num.exp) {
-        
-        rds <- readRDS(rdsFiles[i])
-        peakCDat[[i]] <- getVPReads(rds=rds,vpRegion=vpRegion)
-        
-      }
-      
       resPeakC <- suppressWarnings(combined.analysis(data=peakCDat,num.exp=num.exp,vp.pos=vppos,wSize=wSize,alphaFDR=alphaFDR,qWr=qWr,minDist=minDist))
-      
+    }else{
+      stop(paste0("Viewpoint positions not unique"))
     }
     
     
@@ -1603,9 +1605,7 @@ doPeakC <- function(rdsFiles, vpRegion=2e6, wSize=21,alphaFDR=0.05,qWd=1.5,qWr=1
     rds <- readRDS(rdsFiles[1])
     vppos <- rds$vpInfo$pos
     vpChr <- as.vector(rds$vpInfo$chr)
-    
     peakCDat <- getVPReads(rds=rds,vpRegion=vpRegion)
-    
     resPeakC <- suppressWarnings(single.analysis(data=peakCDat,vp.pos=vppos,wSize=wSize,qWd=qWd,qWr=qWr,minDist=minDist))
     
   }
@@ -1617,7 +1617,6 @@ doPeakC <- function(rdsFiles, vpRegion=2e6, wSize=21,alphaFDR=0.05,qWd=1.5,qWr=1
   return(resPeakC)
   
 }
-
 
 
 embryo <- function(){
