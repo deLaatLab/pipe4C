@@ -627,6 +627,9 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
     
     #The "hap" ones are alternate assemblies for certain regions.DO NOT USE THE *hap* files !!!!
     chr <- chr[ grep( pattern="_hap", x=chr, invert=TRUE ) ]
+    chr <- chr[ grep( pattern="_alt", x=chr, invert=TRUE ) ]
+    
+    
     
     #Make sure Bowtie2 index does not contain these chr
     if (chr_random==FALSE){
