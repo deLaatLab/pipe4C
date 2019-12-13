@@ -125,8 +125,10 @@ Read.VPinfo<-function(VPinfo.file){
   
   #vpchr <- as.character(gsub("[^0-9XYMxym]", "",VPinfo$vpchr ))
   
-  #To be sure that any kind of chromosome name for different species can be used I only remove spaces.
+  #To be sure that any kind of chromosome name for different species can be used I only remove spaces and chr.
   vpchr <- as.character(gsub(" ", "",VPinfo$vpchr ))
+  vpchr <- as.character(gsub("chr", "",vpchr ))
+  vpchr <- as.character(gsub("Chr", "",vpchr ))
   
   vppos <- as.numeric(gsub("\\D+", "", VPinfo$vppos ))
   analysis <- as.character(gsub("[^a-z]", "", VPinfo$analysis ))
