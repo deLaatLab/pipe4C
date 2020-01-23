@@ -1614,12 +1614,20 @@ doPeakC <- function(rdsFiles, vpRegion=2e6, wSize=21,alphaFDR=0.05,qWd=1.5,qWr=1
   
   resPeakC$vpPos <- vppos
   resPeakC$vpChr <- vpChr
-  resPeakC$exportPeakGR <- getPeakCPeaks(resPeakC)
+  
+  if(length(resPeakC$peak)>0){
+  
+  	resPeakC$exportPeakGR <- getPeakCPeaks(resPeakC)
+  
+  } else{
+
+  	resPeakC$exportPeakGR <- NULL
+  	
+  }
   
   return(resPeakC)
   
 }
-
 
 embryo <- function(){
   
