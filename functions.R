@@ -1626,6 +1626,11 @@ doPeakC <- function(rdsFiles, vpRegion=2e6, wSize=21,alphaFDR=0.05,qWd=1.5,qWr=1
     peakCDat <- getVPReads(rds=rds,vpRegion=vpRegion)
     resPeakC <- suppressWarnings(single.analysis(data=peakCDat,vp.pos=vppos,wSize=wSize,qWd=qWd,qWr=qWr,minDist=minDist))
     
+    if(length(resPeakC$peak)==0){
+    
+        message("No significant peaks are found, returning empty peak list.")
+      
+    }
   }
   
   resPeakC$vpPos <- vppos
@@ -1636,7 +1641,8 @@ doPeakC <- function(rdsFiles, vpRegion=2e6, wSize=21,alphaFDR=0.05,qWd=1.5,qWr=1
   	resPeakC$exportPeakGR <- getPeakCPeaks(resPeakC)
   
   } else{
-
+    
+    message("No significant peaks are found, returning empty peak list.")   
   	resPeakC$exportPeakGR <- NULL
   	
   }
