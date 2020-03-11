@@ -1547,16 +1547,24 @@ exportPeakCPeaks <- function(resPeakC,bedFile,name=NULL,desc=NULL,includeVP=TRUE
   
   if(includeVP) {
     
-    bedDF <- as.data.frame(resPeakC$exportPeakGR)[,1:3]
-    colnames(bedDF)[1] <- "chr"
-    write.table(bedDF,file=bedFile,sep="\t",row.names=FALSE,col.names=FALSE,quote=FALSE,append=TRUE)
+    if(!is.null(resPeakC$exportPeakGR)){
+    
+      bedDF <- as.data.frame(resPeakC$exportPeakGR)[,1:3]
+      colnames(bedDF)[1] <- "chr"
+      write.table(bedDF,file=bedFile,sep="\t",row.names=FALSE,col.names=FALSE,quote=FALSE,append=TRUE)
+    
+    }
     
   } else {
     
-    bedDF <- as.data.frame(resPeakC$exportPeakGR)[,1:3]
-    colnames(bedDF)[1] <- "chr"
-    write.table(bedDF,file=bedFile,sep="\t",row.names=FALSE,col.names=FALSE,quote=FALSE,append=TRUE)
+    if(!is.null(resPeakC$exportPeakGR)){
+      
+      bedDF <- as.data.frame(resPeakC$exportPeakGR)[,1:3]
+      colnames(bedDF)[1] <- "chr"
+      write.table(bedDF,file=bedFile,sep="\t",row.names=FALSE,col.names=FALSE,quote=FALSE,append=TRUE)
     
+    }
+  
   }
   
   
