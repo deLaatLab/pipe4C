@@ -1494,10 +1494,18 @@ getVPReads <- function(rds,vpRegion=2e6) {
 
 getPeakCPeaks <- function(resPeakC,min.gapwidth=4e3) {
   
-  vpChr <- resPeakC$vpChr
+  if(length(resPeakC$peak)>0){
+    
+    vpChr <- resPeakC$vpChr
   
-  peakRanges <- reduce(IRanges(resPeakC$peak,resPeakC$peak),min.gapwidth=min.gapwidth)
-  peakGR <- GRanges(seqnames=vpChr,ranges=peakRanges)
+    peakRanges <- reduce(IRanges(resPeakC$peak,resPeakC$peak),min.gapwidth=min.gapwidth)
+    peakGR <- GRanges(seqnames=vpChr,ranges=peakRanges)
+  
+  } else {
+  
+    peakGR <- NULL
+    
+  }
   
   return(peakGR)
   
