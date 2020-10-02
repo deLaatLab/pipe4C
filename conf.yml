@@ -17,6 +17,7 @@ default:
  bins : FALSE
  mismatchMax : 0
  chr_random : FALSE
+ chr_fix : FALSE
  chrUn : FALSE
  chrM : FALSE
  

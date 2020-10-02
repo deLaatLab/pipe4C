@@ -1,5 +1,8 @@
 # FUNCTIONS 4C PIPELINE
 
+
+#02.10.2020: included option to ignore the chr_fix chromosomes that are currently present in the newest hg38 bsgenome package
+
 createConfig <- function( confFile=argsL$confFile ){
   configF <- config::get(file=confFile )
   baseFolder <- configF$fragFolder
@@ -28,10 +31,17 @@ createConfig <- function( confFile=argsL$confFile ){
   chr_random <- configF$chr_random
   chrUn <- configF$chrUn
   chrM <- configF$chrM
+  chr_fix <- configF$chr_fix
   
-  
-  
-  
+  # GRCh38 Highlights
+  # http://hgdownload.soe.ucsc.edu/gbdb/hg38/html/description.html
+  # Alternate sequences - Several human chromosomal regions exhibit sufficient variability to prevent adequate representation by a single sequence. To address this, the GRCh38 assembly provides alternate sequence for selected variant regions through the inclusion of alternate loci scaffolds (or alt loci). Alt loci are separate accessioned sequences that are aligned to reference chromosomes. The GRCh38 initial assembly contained 261 alt loci, many of which are associated with the LRC/KIR area of chr19 and the MHC region on chr6. Subsequent GRC patch releases have added additional alt loci and fix patches. See the sequences page for the latest list of the reference chromosomes, alternate, and patch sequences in GRCh38.
+  # Fix sequences - Fix patches denoted by chr__fix represent changes to the existing sequence. These are generally error corrections (such as base changes, component replacements/updates, switch point updates or tiling path changes) or assembly improvements (such as extension of sequence into gaps). These fix patch scaffold sequences are given chromosome context through alignments to the corresponding chromosome regions. A list of all chromosomes including chr_fix sequences can be found in the sequences page.
+  # Centromere representation - Debuting in this release, the large megabase-sized gaps that represented centromeric regions in previous assemblies have been replaced by sequences from centromere models created by Karen Miga et al., using centromere databases developed during her work in the Willard lab at Duke University (now at the University of Chicago) and analysis software developed while working in the Kent lab at UCSC. The models, which provide the approximate repeat number and order for each centromere, will be useful for read mapping and variation studies.
+  # Mitochondrial genome - The mitochondrial reference sequence included in the GRCh38 assembly (termed "chrM" in the UCSC Genome Browser) is the Revised Cambridge Reference Sequence (rCRS) from MITOMAP with GenBank accession number J01415.2 and RefSeq accession number NC_012920.1. This differs from the chrM sequence (RefSeq accession number NC_001807) provided by the Genome Browser for hg19, which was not updated when the GRCh37 assembly later transitioned to the new version.
+  # Sequence updates - Several erroneous bases and misassembled regions in GRCh37 have been corrected in the GRCh38 assembly, and more than 100 gaps have been filled or reduced. Much of the data used to improve the reference sequence was obtained from other genome sequencing and analysis projects, such as the 1000 Genomes Project.
+  # Analysis set - The GRCh38 assembly offers an "analysis set" that was created to accommodate next generation sequencing read alignment pipelines. To avoid false mapping of reads, duplicate copies of centromeric arrays and WGS on several chromosomes have been hard-masked with Ns. The two PAR regions on chromosome Y have also been hard-masked, and the Epstein-Barr virus sequence has been added as a decoy to attract contamination in samples. Two versions of the analysis set are available on our downloads page: one without the alternate chromosomes from this assembly, and one that includes them.
+  # 
   
   enzymes <- data.frame( 
     name=as.character( sapply( configF$enzymes, function(x) strsplit( x, split=' ' )[[1]][1] ) )
@@ -91,8 +101,10 @@ createConfig <- function( confFile=argsL$confFile ){
                 ,bins=bins
                 ,mmMax=mmMax
                 ,chr_random=chr_random
+                ,chr_fix=chr_fix
                 ,chrUn=chrUn
                 ,chrM=chrM
+                ,chr_fix=chr_fix
                 
                 
   ) )
@@ -612,7 +624,7 @@ alignToFragends <- function( gAlign, fragments, firstcut ) {
 }
 
 Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseFolder_Digest, config_genomes
-                    ,chr_random,chrUn,chrM) {
+                    ,chr_random,chr_fix,chrUn,chrM) {
   firstcutter <- as.character( firstcutter_Digest )
   secondcutter <- as.character( secondcutter_Digest )
   
@@ -624,7 +636,7 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
     
     chr <- unique( seqnames( frag.genome ) )
     
-    #The "hap" ones are alternate assemblies for certain regions.DO NOT USE THE *hap* files !!!!
+    #The "hap" ones are alternate assemblies for certain regions.DO NOT USE THE hap and alt files !!!!
     chr <- chr[ grep( pattern="_hap", x=chr, invert=TRUE ) ]
     chr <- chr[ grep( pattern="_alt", x=chr, invert=TRUE ) ]
     
@@ -634,6 +646,10 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
     if (chr_random==FALSE){
       chr <- chr[ grep( pattern="_random", x=chr, invert=TRUE ) ]
     }
+    if (chr_fix==FALSE){
+      chr <- chr[ grep( pattern="_fix", x=chr, invert=TRUE ) ]
+    }
+    
     if (chrUn==FALSE){
       chr <- chr[ grep( pattern="chrUn_", x=chr, invert=TRUE ) ]
       }
@@ -704,6 +720,7 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
     outFrags$pos <- ifelse( outFrags$fe_strand == 5, start( outFrags )+nchar(firstcutter), end( outFrags )-nchar(firstcutter) ) 
     
     #Save new RDS
+    message( 'Saving Frag genome file as: ',rdsFile )
     saveRDS( outFrags, file=rdsFile )
     return( outFrags )
   } else {
@@ -791,7 +808,7 @@ getUniqueFragends <- function( fragsGR_Unique, firstcutter_Unique="GATC", second
 
 getFragMap <- function( vpChr_FragMap=NULL, firstcutter_FragMap="GATC", secondcutter_FragMap="GTAC", genome_FragMap="hg19"
                         , captureLen_FragMap=60, nThreads_FragMap=10, baseFolder_FragMap, Bowtie2Folder, config_genomes
-                        ,chr_random=chr_random, chrUn=chrUn, chrM = chrM) {
+                        ,chr_random=chr_random, chr_fix=chr_fix,chrUn=chrUn, chrM = chrM) {
   
   # here we want to check if we have the genome available for this analysis, in case yes, loading it, otherwise, advice on the 
   # missing genome and switch to the next guy
@@ -815,7 +832,7 @@ getFragMap <- function( vpChr_FragMap=NULL, firstcutter_FragMap="GATC", secondcu
       )
     )
     fragsGR <- Digest( assemblyName=genome_FragMap, firstcutter_Digest=firstcutter_FragMap, secondcutter_Digest=secondcutter_FragMap, baseFolder_Digest=baseFolder_FragMap, 
-                       config_genomes=config_genomes, chr_random=chr_random, chrUn=chrUn, chrM = chrM) 
+                       config_genomes=config_genomes, chr_random=chr_random, chr_fix=chr_fix,chrUn=chrUn, chrM = chrM) 
   }
   
   message('         ### Retrieve and store the unique fragends')
@@ -1270,6 +1287,7 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
       ,Bowtie2Folder=configuration$bt2Genomes[ genome[i], ]
       ,config_genomes=configuration$genomes
       ,chr_random=configuration$chr_random
+      ,chr_fix=configuration$chr_fix
       ,chrUn=configuration$chrUn
       ,chrM=configuration$chrM
     )
