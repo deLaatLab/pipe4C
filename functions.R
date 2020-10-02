@@ -1512,10 +1512,18 @@ getVPReads <- function(rds,vpRegion=2e6) {
 
 getPeakCPeaks <- function(resPeakC,min.gapwidth=4e3) {
   
-  vpChr <- resPeakC$vpChr
+  if(length(resPeakC$peak)>0){
+    
+    vpChr <- resPeakC$vpChr
   
-  peakRanges <- reduce(IRanges(resPeakC$peak,resPeakC$peak),min.gapwidth=min.gapwidth)
-  peakGR <- GRanges(seqnames=vpChr,ranges=peakRanges)
+    peakRanges <- reduce(IRanges(resPeakC$peak,resPeakC$peak),min.gapwidth=min.gapwidth)
+    peakGR <- GRanges(seqnames=vpChr,ranges=peakRanges)
+  
+  } else {
+  
+    peakGR <- NULL
+    
+  }
   
   return(peakGR)
   
@@ -1557,16 +1565,24 @@ exportPeakCPeaks <- function(resPeakC,bedFile,name=NULL,desc=NULL,includeVP=TRUE
   
   if(includeVP) {
     
-    bedDF <- as.data.frame(resPeakC$exportPeakGR)[,1:3]
-    colnames(bedDF)[1] <- "chr"
-    write.table(bedDF,file=bedFile,sep="\t",row.names=FALSE,col.names=FALSE,quote=FALSE,append=TRUE)
+    if(!is.null(resPeakC$exportPeakGR)){
+    
+      bedDF <- as.data.frame(resPeakC$exportPeakGR)[,1:3]
+      colnames(bedDF)[1] <- "chr"
+      write.table(bedDF,file=bedFile,sep="\t",row.names=FALSE,col.names=FALSE,quote=FALSE,append=TRUE)
+    
+    }
     
   } else {
     
-    bedDF <- as.data.frame(resPeakC$exportPeakGR)[,1:3]
-    colnames(bedDF)[1] <- "chr"
-    write.table(bedDF,file=bedFile,sep="\t",row.names=FALSE,col.names=FALSE,quote=FALSE,append=TRUE)
+    if(!is.null(resPeakC$exportPeakGR)){
+      
+      bedDF <- as.data.frame(resPeakC$exportPeakGR)[,1:3]
+      colnames(bedDF)[1] <- "chr"
+      write.table(bedDF,file=bedFile,sep="\t",row.names=FALSE,col.names=FALSE,quote=FALSE,append=TRUE)
     
+    }
+  
   }
   
   
@@ -1628,6 +1644,11 @@ doPeakC <- function(rdsFiles, vpRegion=2e6, wSize=21,alphaFDR=0.05,qWd=1.5,qWr=1
     peakCDat <- getVPReads(rds=rds,vpRegion=vpRegion)
     resPeakC <- suppressWarnings(single.analysis(data=peakCDat,vp.pos=vppos,wSize=wSize,qWd=qWd,qWr=qWr,minDist=minDist))
     
+    if(length(resPeakC$peak)==0){
+    
+        message("No significant peaks are found, returning empty peak list.")
+      
+    }
   }
   
   resPeakC$vpPos <- vppos
@@ -1638,7 +1659,8 @@ doPeakC <- function(rdsFiles, vpRegion=2e6, wSize=21,alphaFDR=0.05,qWd=1.5,qWr=1
   	resPeakC$exportPeakGR <- getPeakCPeaks(resPeakC)
   
   } else{
-
+    
+    message("No significant peaks are found, returning empty peak list.")   
   	resPeakC$exportPeakGR <- NULL
   	
   }
