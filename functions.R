@@ -1178,6 +1178,9 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
     file.fastq <- paste0( FASTQ.demux.F, exp.name[i], ".fastq.gz" )
     CHR <- paste0("chr", vpChr[i])
     
+    #When the genome is not starting with chr
+    #CHR <- vpChr[i]
+    
     if ( exp.name[i] %in% exp.name[ duplicated( exp.name ) ] ) {  
       error.msg <- paste0( "      ### ERROR: Experiment name not unique for ", exp.name[i] )
       write( error.msg, log.path, append=TRUE )
