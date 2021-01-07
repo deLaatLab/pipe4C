@@ -1,4 +1,4 @@
-VERSION <- '1.00'
+VERSION <- '1.1'
 
 get_script_path <- function(path=NULL) {
   if( is.null( path ) ){
