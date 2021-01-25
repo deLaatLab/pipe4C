@@ -23,6 +23,7 @@ https://doi.org/10.1016/j.ymeth.2019.07.014
   - shortRead
   - genomicRanges
   - genomicAlignments
+  - BSgenome
   - BSgenome of interest
 - The peakC package available from https://github.com/deWitLab/peakC/.
 
