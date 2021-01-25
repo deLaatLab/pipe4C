@@ -383,7 +383,7 @@ trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F,
       }
       
       if ( motifPos.perc < 90) {
-        error.msg <- paste0( "         ### WARNING: ", exp.name, " - Most occuring position RE1 found in only", motifPos.perc, "% of the reads." )
+        error.msg <- paste0( "         ### WARNING: ", exp.name, " - Most occuring position RE1 found in only ", motifPos.perc, "% of the reads." )
         write( error.msg, log.path, append=TRUE )
         message( error.msg )
       }
