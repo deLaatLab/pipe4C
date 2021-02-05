@@ -868,19 +868,19 @@ plot.chroms <- function(exp,reads, cutoff=0.999, yMax=2500){
   abs.cut <- quantile(reads$reads,cutoff, na.rm=T)
   reads$reads[reads$reads > abs.cut] <- abs.cut
   reads$reads <- reads$reads/abs.cut
-  #reads$chr <- sub("chr","",as.character(seqnames(reads)))
+  reads$chr <- sub("chr","",as.character(seqnames(reads)))
   
    for (i in seq_along(chroms)){
      reads[seqnames(reads)==chroms[i]]$chr<-i
    }
    
-  reads$chr <-as.numeric(reads$chr)
- 
+  
   #This does 
   #reads[seqnames(reads)=="chrX"]$chr<-length(chroms)-1
   #reads[seqnames(reads)=="chrY"]$chr<-length(chroms)
 
   reads$chr <-as.numeric(reads$chr)
+  
   layout(cbind(c(rep(1,3),2)))
   par(mar=c(5, 4, 4, 2))
   plot(c(0,max(reads$pos)), c(0,length(chroms)), type='n', axes=F, xlab="Chromosome position (Mb)", ylab="", main = exp)
