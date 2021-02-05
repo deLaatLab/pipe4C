@@ -36,7 +36,7 @@ createConfig <- function( confFile=argsL$confFile ){
   chr_fix <- configF$chr_fix
   
   
-  message(paste('bigwig test:",Bwig))
+  message(paste('bigwig test:',Bwig))
   
   # GRCh38 Highlights
   # http://hgdownload.soe.ucsc.edu/gbdb/hg38/html/description.html
