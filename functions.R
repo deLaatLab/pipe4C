@@ -1775,6 +1775,6 @@ exportBigWig <- function(GR, OutFile, assemblyName,config_genomes){
     end(GR)<-GR$pos
     GR$score<-GR$norm4C
     seqinfo(GR)<-keepStandardChromosomes(seqinfo(genome))  
-    export(GR, OutFile)
+    rtracklayer::export(GR, OutFile)
  
 }
