@@ -108,7 +108,7 @@ createConfig <- function( confFile=argsL$confFile ){
                 ,chr_fix=chr_fix
                 ,chrUn=chrUn
                 ,chrM=chrM
-
+                
                 
                 
   ) )
@@ -1480,7 +1480,7 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
         }
         
        
-        exportBigWig(GR=reads.bwig, OutFile=BwigFile, assemblyName=genome[i],config_genomes)
+        exportBigWig(GR=reads.bwig, OutFile=BwigFile, assemblyName=genome[i],config_genomes=configuration$genomes)
       }
     }
     
