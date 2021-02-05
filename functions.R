@@ -546,7 +546,8 @@ exportWig <- function( gR, expName, filename, vpPos, vpChr, plotView) {
   cat(trackLine, file=gz1, append=TRUE )
   chrs <- as.vector( unique( seqnames( gR ) ) )
   for( chr in chrs ) {
-    chrLine <- paste0( "variableStep chrom=", chr, " span=100\n" )
+    #chrLine <- paste0( "variableStep chrom=", chr, " span=100\n" )
+    chrLine <- paste0( "variableStep chrom=", chr, " span=1\n" )
     cat( chrLine, file=gz1, append=TRUE )
     chrGr <- gR[seqnames(gR)==chr]
     datChr <- data.frame( start=chrGr$pos, score=round(chrGr$norm4C, digits=5 ) )
