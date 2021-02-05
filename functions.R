@@ -1,7 +1,8 @@
 # FUNCTIONS 4C PIPELINE
 
 
-#02.10.2020: included option to ignore the chr_fix chromosomes that are currently present in the newest hg38 bsgenome package
+#2020.02.10: included option to ignore the chr_fix chromosomes that are currently present in the newest hg38 bsgenome package
+#2020.02.05: Changed span from 100 to 1 in the exportWig function.
 
 createConfig <- function( confFile=argsL$confFile ){
   configF <- config::get(file=confFile )
@@ -23,6 +24,7 @@ createConfig <- function( confFile=argsL$confFile ){
   mapUnique <- configF$mapUnique
   nonBlind <- configF$nonBlind
   wig <- configF$wig
+  Bwig <- configF$Bwig
   cisplot <- configF$cisplot
   genomePlot <- configF$genomePlot
   tsv <- configF$tsv
@@ -95,6 +97,7 @@ createConfig <- function( confFile=argsL$confFile ){
                 ,mapUnique=mapUnique
                 ,nonBlind=nonBlind
                 ,wig=wig
+                ,Bwig=Bwig
                 ,cisplot=cisplot
                 ,genomePlot=genomePlot
                 ,tsv=tsv
@@ -1058,6 +1061,7 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
   nTop = configuration$nTop
   nonBlind = configuration$nonBlind
   make.wig = configuration$wig
+  make.BigWig = configuration$Bwig
   make.cisplot = configuration$cisplot
   make.gwplot = configuration$genomePlot
   tsv = configuration$tsv
@@ -1077,6 +1081,7 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
   RDS.BIN.F <- gsub( x=paste0( OUTPUT.F, "/RDS-BIN/" ), pattern='//', replacement='/' )
   PLOT.F <- gsub( x=paste0( OUTPUT.F, "/PLOT/" ), pattern='//', replacement='/' )
   WIG.F <- gsub( x=paste0( OUTPUT.F, "/WIG/" ), pattern='//', replacement='/' )
+  BWIG.F <- gsub( x=paste0( OUTPUT.F, "/BWIG/" ), pattern='//', replacement='/' )
   GENOMEPLOT.F <- gsub( x=paste0( OUTPUT.F, "/GENOMEPLOT/" ), pattern='//', replacement='/' )
   TSV.F <- gsub( x=paste0( OUTPUT.F, "/TSV/" ), pattern='//', replacement='/' )
   
@@ -1105,6 +1110,9 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
   }
   if ( make.wig == TRUE ){
     logDirs$wigFolder <- ifelse( !dir.exists( WIG.F ), dir.create( WIG.F ), FALSE )
+  }
+  if ( make.BigWig == TRUE ){
+    logDirs$wigFolder <- ifelse( !dir.exists( BWIG.F ), dir.create( BWIG.F ), FALSE )
   }
   if( any( VPinfo$analysis == 'all' ) & make.gwplot ){
     logDirs$genomeplotFolder <- ifelse( !dir.exists( GENOMEPLOT.F ), dir.create( GENOMEPLOT.F ), FALSE )
@@ -1446,6 +1454,40 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
       }
     }
     
+    #make bigwig
+    
+    
+      
+    if ( make.BigWig == TRUE ) {
+      message("      >>> Create Big WIG file <<<")
+      
+      if ( nonBlind ) {
+        BwigFile <- paste0( BWIG.F, exp.name[i], "_nonblind_WIN",wSize,".bw" )  
+      }else{
+        BwigFile <- paste0( BWIG.F, exp.name[i],"_WIN",wSize ,".bw" )  
+      }
+      
+      if ( file.exists( BwigFile ) ){
+        error.msg <- paste( "         ### WARNING:", exp.name[i], "Big WIG file already exist." )
+        message( error.msg )
+        write( error.msg, log.path, append=TRUE )
+      } else {
+        if ( analysis[i] == "cis" ) {
+          reads.bwig <- reads.cis[ order( reads.cis$pos ) ]
+        }else{
+          reads.bwig <- reads.all[ order( seqnames(reads.all),reads.all$pos ) ]
+        }
+        
+       
+        exportBigWig(GR=reads.bwig, OutFile=BwigFile, assemblyName=genome[i],config_genomes)
+      }
+    }
+    
+    
+    
+    
+    
+    #Make tsv
     if ( tsv == TRUE ) {
       message("      >>> Create TSV file <<<")
       
@@ -1718,3 +1760,21 @@ embryo <- function(){
 }
 
 
+exportBigWig <- function(GR, OutFile, assemblyName,config_genomes){
+  
+  #load the package
+  require(rtracklayer)
+ 
+  do.call( require, args=list( config_genomes[ assemblyName, ] ) )
+  assign( 'genome', base::get( config_genomes[ assemblyName, ] ) )
+  
+  
+  message("Converting RDS to BigWig file: ",file)
+    
+    start(GR)<-GR$pos
+    end(GR)<-GR$pos
+    GR$score<-GR$norm4C
+    seqinfo(GR)<-keepStandardChromosomes(seqinfo(genome))  
+    export(GR, OutFile)
+ 
+}
