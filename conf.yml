@@ -1,5 +1,5 @@
 default:
- fragFolder: /data2/repository/genome/fragmap_4C/PK/
+ fragFolder: /pipeline4C/fragGenome/
  normalizeFactor: 1000000
  qualityCutoff : 0
  trimLength : 0
