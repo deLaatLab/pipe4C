@@ -11,6 +11,7 @@ default:
  mapUnique : FALSE
  nonBlind : FALSE
  wig : FALSE
+ bigwig : FALSE
  cisplot : FALSE
  genomePlot : FALSE
  tsv : FALSE
