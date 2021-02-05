@@ -68,7 +68,7 @@ option_list = list(
               help="Only keep non-blind fragments"),
   make_option(c("-w", "--wig"), action="store_true", default=FALSE,
               help="create wig files for all samples"),
-  make_option(c("-w", "--bigwig"), action="store_true", default=FALSE,
+  make_option(c("-x", "--bigwig"), action="store_true", default=FALSE,
               help="create big wig files for all samples"),
   make_option(c("-p", "--plot"), action="store_true", default=FALSE,
               help="Create viewpoint coverage plot for all samples."),
