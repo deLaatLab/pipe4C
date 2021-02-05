@@ -1,4 +1,7 @@
-VERSION <- '1.1'
+VERSION <- '1.1.1'
+
+#introduced bigwig option
+#changed span in wig from 100 to 1
 
 get_script_path <- function(path=NULL) {
   if( is.null( path ) ){
@@ -65,6 +68,8 @@ option_list = list(
               help="Only keep non-blind fragments"),
   make_option(c("-w", "--wig"), action="store_true", default=FALSE,
               help="create wig files for all samples"),
+  make_option(c("-w", "--bigwig"), action="store_true", default=FALSE,
+              help="create big wig files for all samples"),
   make_option(c("-p", "--plot"), action="store_true", default=FALSE,
               help="Create viewpoint coverage plot for all samples."),
   make_option(c("-g", "--genomePlot"), action="store_true", default=FALSE,
@@ -153,6 +158,9 @@ if (argsL$nonBlind){
 }
 if (argsL$wig){
   configOpt$wig<-argsL$wig
+}
+if (argsL$bigwig){
+  configOpt$bigwig<-argsL$bigwig
 }
 if (argsL$plot){
   configOpt$cisplot<-argsL$plot
