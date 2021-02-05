@@ -1770,7 +1770,7 @@ exportBigWig <- function(GR, OutFile, assemblyName,config_genomes){
   assign( 'genome', base::get( config_genomes[ assemblyName, ] ) )
   
   
-  message("Converting RDS to BigWig file: ",file)
+  message("Converting RDS to BigWig file: ",OutFile)
     
     start(GR)<-GR$pos
     end(GR)<-GR$pos
