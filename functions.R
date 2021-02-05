@@ -1138,7 +1138,7 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
              , "reads.quality", "map.unique", "wSize", "nTop", "make.wig","make.bigwig", "make.cisplot", "make.gwplot", "nThreads"
              , "normFactor", "nonBlind", "tsv","bins", "mmMax", "minReads" )
     ,value=c( configuration$pipeline.version, configuration$baseFolder, VPinfo.file, FASTQ.F, OUTPUT.F, cutoff, trim.length
-              ,reads.quality, map.unique, wSize, nTop, make.wig, makeBigWig,make.cisplot, make.gwplot, nThreads,normFactor
+              ,reads.quality, map.unique, wSize, nTop, make.wig, make.BigWig,make.cisplot, make.gwplot, nThreads,normFactor
               ,nonBlind,tsv,bins,mmMax, min.amount.reads)
   )
   
