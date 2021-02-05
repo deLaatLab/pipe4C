@@ -191,8 +191,6 @@ if (argsL$bins){
 
 embryo()
 
-message(configOpt$bigwig)
-
 Run.4Cpipeline( 
   VPinfo.file = argsL$vpFile
   ,FASTQ.F = argsL$fqFolder
