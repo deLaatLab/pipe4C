@@ -35,6 +35,9 @@ createConfig <- function( confFile=argsL$confFile ){
   chrM <- configF$chrM
   chr_fix <- configF$chr_fix
   
+  
+  message(paste('bigwig test:",Bwig))
+  
   # GRCh38 Highlights
   # http://hgdownload.soe.ucsc.edu/gbdb/hg38/html/description.html
   # Alternate sequences - Several human chromosomal regions exhibit sufficient variability to prevent adequate representation by a single sequence. To address this, the GRCh38 assembly provides alternate sequence for selected variant regions through the inclusion of alternate loci scaffolds (or alt loci). Alt loci are separate accessioned sequences that are aligned to reference chromosomes. The GRCh38 initial assembly contained 261 alt loci, many of which are associated with the LRC/KIR area of chr19 and the MHC region on chr6. Subsequent GRC patch releases have added additional alt loci and fix patches. See the sequences page for the latest list of the reference chromosomes, alternate, and patch sequences in GRCh38.
@@ -1112,7 +1115,7 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
     logDirs$wigFolder <- ifelse( !dir.exists( WIG.F ), dir.create( WIG.F ), FALSE )
   }
   if ( make.BigWig == TRUE ){
-    logDirs$wigFolder <- ifelse( !dir.exists( BWIG.F ), dir.create( BWIG.F ), FALSE )
+    logDirs$BwigFolder <- ifelse( !dir.exists( BWIG.F ), dir.create( BWIG.F ), FALSE )
   }
   if( any( VPinfo$analysis == 'all' ) & make.gwplot ){
     logDirs$genomeplotFolder <- ifelse( !dir.exists( GENOMEPLOT.F ), dir.create( GENOMEPLOT.F ), FALSE )
