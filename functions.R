@@ -108,7 +108,7 @@ createConfig <- function( confFile=argsL$confFile ){
                 ,chr_fix=chr_fix
                 ,chrUn=chrUn
                 ,chrM=chrM
-                ,chr_fix=chr_fix
+
                 
                 
   ) )
@@ -1135,18 +1135,18 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
   
   run.par <- data.frame(
     param=c( "pipeline.version", "baseFolder", "VPinfo.file", "FASTQ.F", "OUTPUT.F", "cutoff", "trim.length"
-             , "reads.quality", "map.unique", "wSize", "nTop", "make.wig", "make.cisplot", "make.gwplot", "nThreads"
-             , "normFactor", "nonBlind", "tsv","bins", "mmMax" )
+             , "reads.quality", "map.unique", "wSize", "nTop", "make.wig","make.bigwig", "make.cisplot", "make.gwplot", "nThreads"
+             , "normFactor", "nonBlind", "tsv","bins", "mmMax", "minReads" )
     ,value=c( configuration$pipeline.version, configuration$baseFolder, VPinfo.file, FASTQ.F, OUTPUT.F, cutoff, trim.length
-              ,reads.quality, map.unique, wSize, nTop, make.wig, make.cisplot, make.gwplot, nThreads,normFactor
-              ,nonBlind,tsv,bins,mmMax)
+              ,reads.quality, map.unique, wSize, nTop, make.wig, makeBigWig,make.cisplot, make.gwplot, nThreads,normFactor
+              ,nonBlind,tsv,bins,mmMax, min.amount.reads)
   )
   
   
   
   write.table( run.par, log.path, quote=FALSE, col.names=FALSE, row.names=FALSE, append=TRUE )                    
   
-  
+
   
   
   
