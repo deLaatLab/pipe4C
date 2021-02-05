@@ -24,7 +24,7 @@ createConfig <- function( confFile=argsL$confFile ){
   mapUnique <- configF$mapUnique
   nonBlind <- configF$nonBlind
   wig <- configF$wig
-  Bwig <- configF$Bwig
+  Bwig <- configF$bigwig
   cisplot <- configF$cisplot
   genomePlot <- configF$genomePlot
   tsv <- configF$tsv
