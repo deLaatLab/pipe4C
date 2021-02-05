@@ -149,7 +149,6 @@ if (!is.null(argsL$mismatchMax)){
   configOpt$mmMax<-argsL$mismatchMax
 }
 
-
 if (argsL$mapUnique){
   configOpt$mapUnique<-argsL$mapUnique
 }
@@ -160,6 +159,7 @@ if (argsL$wig){
   configOpt$wig<-argsL$wig
 }
 if (argsL$bigwig){
+  message("Making bigwigs!!")
   configOpt$bigwig<-argsL$bigwig
 }
 if (argsL$plot){
