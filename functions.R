@@ -24,7 +24,7 @@ createConfig <- function( confFile=argsL$confFile ){
   mapUnique <- configF$mapUnique
   nonBlind <- configF$nonBlind
   wig <- configF$wig
-  Bwig <- configF$bigwig
+  bigwig <- configF$bigwig
   cisplot <- configF$cisplot
   genomePlot <- configF$genomePlot
   tsv <- configF$tsv
@@ -36,7 +36,7 @@ createConfig <- function( confFile=argsL$confFile ){
   chr_fix <- configF$chr_fix
   
   
-  message(paste('bigwig test:',Bwig))
+  message(paste('bigwig test:',bigwig))
   
   # GRCh38 Highlights
   # http://hgdownload.soe.ucsc.edu/gbdb/hg38/html/description.html
@@ -100,7 +100,7 @@ createConfig <- function( confFile=argsL$confFile ){
                 ,mapUnique=mapUnique
                 ,nonBlind=nonBlind
                 ,wig=wig
-                ,Bwig=Bwig
+                ,bigwig=bigwig
                 ,cisplot=cisplot
                 ,genomePlot=genomePlot
                 ,tsv=tsv
@@ -1064,7 +1064,7 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
   nTop = configuration$nTop
   nonBlind = configuration$nonBlind
   make.wig = configuration$wig
-  make.BigWig = configuration$Bwig
+  make.BigWig = configuration$bigwig
   make.cisplot = configuration$cisplot
   make.gwplot = configuration$genomePlot
   tsv = configuration$tsv
