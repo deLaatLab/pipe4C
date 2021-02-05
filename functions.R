@@ -36,8 +36,6 @@ createConfig <- function( confFile=argsL$confFile ){
   chr_fix <- configF$chr_fix
   
   
-  message(paste('bigwig test:',bigwig))
-  
   # GRCh38 Highlights
   # http://hgdownload.soe.ucsc.edu/gbdb/hg38/html/description.html
   # Alternate sequences - Several human chromosomal regions exhibit sufficient variability to prevent adequate representation by a single sequence. To address this, the GRCh38 assembly provides alternate sequence for selected variant regions through the inclusion of alternate loci scaffolds (or alt loci). Alt loci are separate accessioned sequences that are aligned to reference chromosomes. The GRCh38 initial assembly contained 261 alt loci, many of which are associated with the LRC/KIR area of chr19 and the MHC region on chr6. Subsequent GRC patch releases have added additional alt loci and fix patches. See the sequences page for the latest list of the reference chromosomes, alternate, and patch sequences in GRCh38.
