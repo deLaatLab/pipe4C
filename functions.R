@@ -874,20 +874,17 @@ plot.chroms <- function(exp,reads, cutoff=0.999, yMax=2500){
      reads[seqnames(reads)==chroms[i]]$chr<-i
    }
    
-  
-  #This does 
   #reads[seqnames(reads)=="chrX"]$chr<-length(chroms)-1
   #reads[seqnames(reads)=="chrY"]$chr<-length(chroms)
 
   reads$chr <-as.numeric(reads$chr)
   
-  layout(cbind(c(rep(1,3),2)))
   par(mar=c(5, 4, 4, 2))
   plot(c(0,max(reads$pos)), c(0,length(chroms)), type='n', axes=F, xlab="Chromosome position (Mb)", ylab="", main = exp)
   segments(reads$pos,reads$chr,reads$pos,reads$chr+reads$reads)
   lab <- seq(0,ceiling(max(reads$pos)/10e6)*10, by=10)
   axis(1, at = lab*1e6, label=lab, las=2)
-  axis(2, at= 1:length(chroms)+0.5, lab=chroms, lwd=0, las=2 )
+  axis(2, at= 1:length(chroms)+0.5, lab=chroms, lwd=0, las=2, cex.axis=0.9 )
 }
 
 make.reads.and.bins <- function( reads, assemblyName, res=25e3, config_genomes ){
@@ -1035,7 +1032,7 @@ createPlot <- function( plotTitle, vpPos, chromosome, fragGR, plotLegend=NULL, p
     if( plotType == 'PDF' ){
       pdf( file=paste0( foldOut, plotTitle, ".pdf" ) )
     } else {
-      png( file=paste0( foldOut, plotTitle, ".png" ), width = 1200, height = 600, res = 300)
+      png( file=paste0( foldOut, plotTitle, ".png" ), width = 1965, height = 1481, res = 300)
     }      
     plot.chroms( exp=plotTitle, reads=fragGR$bins, cutoff=0.999, yMax=maxY )
     dev.off()
