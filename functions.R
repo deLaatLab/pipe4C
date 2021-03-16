@@ -684,6 +684,9 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
       blinds$fe_strand <- rep(c(5,3), length.out = length(blinds))
       
       nonBlinds <- frag.RE1[unique(findOverlaps(frag.RE1,RE2.ol)@from)]
+      
+      if(length(nonBlinds)>0){
+      
       nonBlinds$type <- "non_blind"
       nonBlinds.fe5 <- nonBlinds
       
@@ -718,6 +721,12 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
       }
       
       outFrags <- sort(c(outFrags,blinds, nonBlinds.fe5,nonBlinds.fe3,nonBlinds.fe5.start,nonBlinds.fe3.end))
+      }else{
+        message(paste("No non-blind fragments in",chrom))
+        outFrags <- sort(c(outFrags,blinds))
+      }
+      
+      
       
     }
     
