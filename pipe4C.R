@@ -1,4 +1,6 @@
-VERSION <- '1.1.1'
+VERSION <- '1.1.2'
+
+#.libPaths( c( .libPaths(), "/pipeline4C/BSgenomes/installed/") )
 
 #introduced bigwig option
 #changed span in wig from 100 to 1
@@ -105,7 +107,7 @@ if (is.null(argsL$outFolder)){
 #################################################################################################################
 message( '\n------ Loading functions and configuration file' )
 
-#.libPaths( c( .libPaths(), "/pipeline4C/BSgenomes/installed/") )
+
 
 if( !suppressMessages(require( "ShortRead", character.only=TRUE ) ) ) stop( "Package not found: ShortRead" )
 if( !suppressMessages(require( "GenomicRanges", character.only=TRUE ) ) ) stop( "Package not found: GenomicRanges" )

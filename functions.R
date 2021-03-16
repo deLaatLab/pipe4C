@@ -3,6 +3,8 @@
 
 #2020.02.10: included option to ignore the chr_fix chromosomes that are currently present in the newest hg38 bsgenome package
 #2020.02.05: Changed span from 100 to 1 in the exportWig function.
+#option to generate BW files.
+#2021.03.16: If no non-blind fragments are identified in a chr the digestion fucntion will give a warning and continue.
 
 createConfig <- function( confFile=argsL$confFile ){
   configF <- config::get(file=confFile )
