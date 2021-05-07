@@ -1,9 +1,11 @@
-VERSION <- '1.1.2'
-
-#.libPaths( c( .libPaths(), "/pipeline4C/BSgenomes/installed/") )
-
+VERSION <- '1.1.3'
 #introduced bigwig option
-#changed span in wig from 100 to 1
+
+
+#.libPaths( c( .libPaths(), "~/mnt/G_drive/Group_deLaat_bioinf/shared/4C-seq_pipeline/R/installed/") )
+
+
+
 
 get_script_path <- function(path=NULL) {
   if( is.null( path ) ){
@@ -58,6 +60,11 @@ option_list = list(
               help="Bowtie2 minimum quality mapped reads.",metavar="number"),
   make_option(c("-z", "--cores"), type="integer", default=NULL,
               help="Number of cores for parallelization.",metavar="number"),
+  
+  make_option(c("-a", "--alnStart"), action="store_true", default=FALSE,
+              help="Alignment should start at first position RE1."),
+  
+  
   make_option(c("-s", "--wSize"), type="integer", default=NULL,
               help="The running mean window size.",metavar="number"),
   make_option(c("-n", "--nTop"), type="integer", default=NULL,
@@ -175,6 +182,9 @@ if (argsL$tsv){
 }
 if (argsL$bins){
   configOpt$bins<-argsL$bins
+}
+if (argsL$alnStart){
+  configOpt$alnStart<-argsL$alnStart
 }
 
 

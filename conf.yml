@@ -8,6 +8,7 @@ default:
  cores : 1
  wSize : 21
  nTop : 2
+ alnStart : TRUE
  mapUnique : FALSE
  nonBlind : FALSE
  wig : FALSE

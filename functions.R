@@ -5,6 +5,11 @@
 #2020.02.05: Changed span from 100 to 1 in the exportWig function.
 #option to generate BW files.
 #2021.03.16: If no non-blind fragments are identified in a chr the digestion fucntion will give a warning and continue.
+#2021.05.06 : If only 1 RE motif is found the digest function will not crash. The start en end of the chromosome will be use to generate 2 fragments.
+#2021.05.06 :alignToFragends update:
+  #Option that aligned read should start at first position RE1
+  #Error when no algined fragments are identified
+
 
 createConfig <- function( confFile=argsL$confFile ){
   configF <- config::get(file=confFile )
@@ -36,7 +41,7 @@ createConfig <- function( confFile=argsL$confFile ){
   chrUn <- configF$chrUn
   chrM <- configF$chrM
   chr_fix <- configF$chr_fix
-  
+  alnStart <- configF$alnStart
   
   # GRCh38 Highlights
   # http://hgdownload.soe.ucsc.edu/gbdb/hg38/html/description.html
@@ -110,6 +115,7 @@ createConfig <- function( confFile=argsL$confFile ){
                 ,chr_fix=chr_fix
                 ,chrUn=chrUn
                 ,chrM=chrM
+                ,alnStart=alnStart
                 
                 
                 
@@ -612,17 +618,31 @@ olRanges <- function(query, subject) {
   
 }
 
-alignToFragends <- function( gAlign, fragments, firstcut ) {
+alignToFragends <- function( gAlign, fragments, firstcut, alnStart=TRUE ) {
   
   strand( fragments ) <- ifelse( fragments$fe_strand==3, "-", "+" )
   ovl <- olRanges( query=fragments, subject=as( gAlign, "GRanges" ) )
   #remove sequences that overlap only with RE motif
   ovl <- ovl[ ovl$OLlength >= nchar( as.character( firstcut ) )+1 ]
-  #Sequence need to start within unique fragment
-  ovl <- ovl[ strand( ovl )=="+" & ovl$Sstart >= start( ovl ) | strand( ovl )=="-" & ovl$Send <= end( ovl ) ]
   
-  #To do: Make it more strict. Reads should start directly at a restriction enzyme cutting site. 
-  #ovl <- ovl[ strand( ovl )=="+" & ovl$Sstart >= start( ovl ) & ovl$Sstart <= start( ovl )+nchar(as.character(firstcut))| strand( ovl )=="-" & ovl$Send <= end( ovl ) & & ovl$Send >= start( ovl )-nchar(as.character(firstcut)) ]
+  
+  if(alnStart){
+    #Aligned read should start at the RE1 motif
+    ovl <- ovl[ strand( ovl )=="+" & ovl$Sstart == start( ovl ) | strand( ovl )=="-" & ovl$Send == end( ovl ) ]
+    
+    #Or make it less strict? SNPs or read erros may result in a read that maps a few nts later in the fragment?
+    #ovl <- ovl[ strand( ovl )=="+" & ovl$Sstart >= start( ovl ) & ovl$Sstart <= start( ovl )+nchar(as.character(firstcut))| strand( ovl )=="-" & ovl$Send <= end( ovl ) & & ovl$Send >= start( ovl )-nchar(as.character(firstcut)) ]
+  }else{
+    #Sequence need to start within unique fragment
+    ovl <- ovl[ strand( ovl )=="+" & ovl$Sstart >= start( ovl ) | strand( ovl )=="-" & ovl$Send <= end( ovl ) ]
+  }
+  
+  if(length(ovl)==0){
+    error.msg <- paste( "         ### ERROR: no unique fragment ends aligned" )
+    message( error.msg )
+    return()
+  }
+  
   
   nReads <- tapply( ovl$Sindex, ovl$Qindex, length )
   fragments$reads <- 0
@@ -630,8 +650,11 @@ alignToFragends <- function( gAlign, fragments, firstcut ) {
   return( fragments )
 }
 
+
+
 Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseFolder_Digest, config_genomes
                     ,chr_random,chr_fix,chrUn,chrM) {
+
   firstcutter <- as.character( firstcutter_Digest )
   secondcutter <- as.character( secondcutter_Digest )
   
@@ -647,8 +670,6 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
     chr <- chr[ grep( pattern="_hap", x=chr, invert=TRUE ) ]
     chr <- chr[ grep( pattern="_alt", x=chr, invert=TRUE ) ]
     
-    
-    
     #Make sure Bowtie2 index does not contain these chr
     if (chr_random==FALSE){
       chr <- chr[ grep( pattern="_random", x=chr, invert=TRUE ) ]
@@ -659,11 +680,11 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
     
     if (chrUn==FALSE){
       chr <- chr[ grep( pattern="chrUn_", x=chr, invert=TRUE ) ]
-      }
+    }
     if (chrM==FALSE){
       chr <- chr[ grep( pattern="chrM", x=chr, invert=TRUE ) ]  
     }
-     
+    
     
     
     outFrags <- GRanges()
@@ -671,61 +692,111 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
       chrom <- chr[ i ]
       print( paste( "Processing ", chrom, sep="" ) )
       
-      RE1 <- GRanges( seqnames=chrom, ranges( matchPattern( pattern=firstcutter, subject=frag.genome[[chrom]] ) ) )
-      RE2 <- GRanges( seqnames=chrom, ranges( matchPattern( pattern=secondcutter, subject=frag.genome[[chrom]] ) ) )
       
-      frag.RE1 <- RE1[ 1:( length(RE1)-1 ) ]
-      end( frag.RE1 )[ 1:( length(RE1)-1 ) ] <- end( RE1 )[ 2:length( RE1 ) ]
+      RE1_pos <- matchPattern( pattern=firstcutter, subject=frag.genome[[chrom]] )
       
-      #Only keep RE2 sites that completely overlap with RE1 fragment
-      RE2.ol <- olRanges(frag.RE1, RE2)
-      RE2.ol <- RE2[RE2.ol[RE2.ol$OLpercS==100]$Sindex]
-      blinds <- frag.RE1[!(frag.RE1 %over% RE2.ol)] 
-      blinds$type <- "blind"
-      blinds <- rep(blinds[blinds$type=="blind"], each = 2)
-      blinds$fe_strand <- rep(c(5,3), length.out = length(blinds))
-      
-      nonBlinds <- frag.RE1[unique(findOverlaps(frag.RE1,RE2.ol)@from)]
-      
-      if(length(nonBlinds)>0){
-      
-      nonBlinds$type <- "non_blind"
-      nonBlinds.fe5 <- nonBlinds
-      
-      end( nonBlinds.fe5 ) <- end( RE2.ol[ findOverlaps( nonBlinds, RE2.ol, select="first" ) ] )
-      nonBlinds.fe5$fe_strand <- 5
-      nonBlinds.fe3 <- nonBlinds
-      start( nonBlinds.fe3 ) <- start( RE2.ol[ findOverlaps( nonBlinds, RE2.ol, select="last" ) ] )
-      nonBlinds.fe3$fe_strand <- 3
-      
-      nonBlinds.fe5.start <- GRanges()
-      nonBlinds.fe3.end <- GRanges()
-      
-      #Add first and last fragends
-      if ( start( head( RE1, 1 ) ) > start( head( RE2, 1 ) ) ){
-        frag <- GRanges( seqnames=chrom, IRanges( 1, end(RE1[1]) ) )
-        RE2.ol.start <- olRanges(frag, RE2)
-        RE2.ol.start <- RE2[RE2.ol.start[RE2.ol.start$OLpercS==100]$Sindex]
-        nonBlinds.fe5.start <- RE1[1]
-        start(nonBlinds.fe5.start) <- start(RE2.ol.start[findOverlaps(frag, RE2.ol.start,select="last")])
-        nonBlinds.fe5.start$type <- "non_blind"
-        nonBlinds.fe5.start$fe_strand <- 5
-      }
-      
-      if ( end( tail( RE1, 1 ) ) <  end( tail( RE2, 1 ) ) ){
-        frag <- GRanges( seqnames=chrom, IRanges( start(RE1[length(RE1)]), end(RE2[length(RE2)]) ) )
-        RE2.ol.start <- olRanges(frag, RE2)
-        RE2.ol.start <- RE2[RE2.ol.start[RE2.ol.start$OLpercS==100]$Sindex]
-        nonBlinds.fe3.end <- RE1[length(RE1)]
-        end(nonBlinds.fe3.end) <- end(RE2.ol.start[findOverlaps(frag, RE2.ol.start,select="first")])
-        nonBlinds.fe3.end$type <- "non_blind"
-        nonBlinds.fe3.end$fe_strand <- 3
-      }
-      
-      outFrags <- sort(c(outFrags,blinds, nonBlinds.fe5,nonBlinds.fe3,nonBlinds.fe5.start,nonBlinds.fe3.end))
+      if (length(RE1_pos)>0){
+        
+        RE1 <- GRanges( seqnames=chrom, ranges( RE1_pos ) )
+        
+        if(length(RE1_pos)>1){
+          frag.RE1 <- RE1[ 1:( length(RE1)-1 ) ]
+          end( frag.RE1 )[ 1:( length(RE1)-1 ) ] <- end( RE1 )[ 2:length( RE1 ) ]
+        }else{
+          message("Only 1 RE1 motif found")
+          chromLen<-as.numeric(as.data.frame(seqlengths(frag.genome))[chrom,1])
+          RE1_A<-RE1
+          start(RE1_A)<-1
+          RE1_B<-RE1
+          end(RE1_B)<-chromLen
+          frag.RE1 <- c(RE1_A,RE1_B)
+        }
+        
+        
+        #Only keep RE2 sites that completely overlap with RE1 fragment
+        RE2 <- matchPattern( pattern=secondcutter, subject=frag.genome[[chrom]] )
+        
+        if(length(RE2)>0){
+          RE2 <- GRanges( seqnames=chrom, ranges( matchPattern( pattern=secondcutter, subject=frag.genome[[chrom]] ) ) )
+          RE2.ol <- olRanges(frag.RE1, RE2)
+          RE2.ol <- RE2[RE2.ol[RE2.ol$OLpercS==100]$Sindex]
+          blinds <- frag.RE1[!(frag.RE1 %over% RE2.ol)]
+          nonBlinds <- frag.RE1[unique(findOverlaps(frag.RE1,RE2.ol)@from)]
+          
+        }else{
+          message("No RE2 motifs found")
+          blinds <- frag.RE1
+          nonBlinds <- GRanges()
+        }
+        
+        if(length(blinds)>0){
+          blinds$type <- "blind"
+          
+          if(length(RE1_pos)>1){
+            blinds <- rep(blinds[blinds$type=="blind"], each = 2)
+          }
+          
+          blinds$fe_strand <- rep(c(5,3), length.out = length(blinds))
+        }
+        
+        
+        
+        if(length(nonBlinds)>0){
+          
+          nonBlinds$type <- "non_blind"
+          nonBlinds.fe5 <- nonBlinds
+          end( nonBlinds.fe5 ) <- end( RE2.ol[ findOverlaps( nonBlinds, RE2.ol, select="first" ) ] )
+          
+          if (length(RE1_pos)==1){
+            nonBlinds.fe5<-nonBlinds.fe5[2]
+          }
+          
+          nonBlinds.fe5$fe_strand <- 5
+          
+          
+          nonBlinds.fe3 <- nonBlinds
+          start( nonBlinds.fe3 ) <- start( RE2.ol[ findOverlaps( nonBlinds, RE2.ol, select="last" ) ] )
+          
+          if (length(RE1_pos)==1){
+            nonBlinds.fe3<-nonBlinds.fe3[1]
+          }
+          
+          nonBlinds.fe3$fe_strand <- 3
+          
+          nonBlinds.fe5.start <- GRanges()
+          nonBlinds.fe3.end <- GRanges()
+          
+          if (length(RE1_pos)>1){
+            #Add first and last fragends
+            if ( start( head( RE1, 1 ) ) > start( head( RE2, 1 ) ) ){
+              frag <- GRanges( seqnames=chrom, IRanges( 1, end(RE1[1]) ) )
+              RE2.ol.start <- olRanges(frag, RE2)
+              RE2.ol.start <- RE2[RE2.ol.start[RE2.ol.start$OLpercS==100]$Sindex]
+              nonBlinds.fe5.start <- RE1[1]
+              start(nonBlinds.fe5.start) <- start(RE2.ol.start[findOverlaps(frag, RE2.ol.start,select="last")])
+              nonBlinds.fe5.start$type <- "non_blind"
+              nonBlinds.fe5.start$fe_strand <- 5
+            }
+            
+            if ( end( tail( RE1, 1 ) ) <  end( tail( RE2, 1 ) ) ){
+              frag <- GRanges( seqnames=chrom, IRanges( start(RE1[length(RE1)]), end(RE2[length(RE2)]) ) )
+              RE2.ol.start <- olRanges(frag, RE2)
+              RE2.ol.start <- RE2[RE2.ol.start[RE2.ol.start$OLpercS==100]$Sindex]
+              nonBlinds.fe3.end <- RE1[length(RE1)]
+              end(nonBlinds.fe3.end) <- end(RE2.ol.start[findOverlaps(frag, RE2.ol.start,select="first")])
+              nonBlinds.fe3.end$type <- "non_blind"
+              nonBlinds.fe3.end$fe_strand <- 3
+            }
+          }
+          
+          
+          outFrags <- sort(c(outFrags,blinds, nonBlinds.fe5,nonBlinds.fe3,nonBlinds.fe5.start,nonBlinds.fe3.end))
+        }else{
+          message(paste("No non-blind fragments in",chrom))
+          outFrags <- sort(c(outFrags,blinds))
+        }
       }else{
-        message(paste("No non-blind fragments in",chrom))
-        outFrags <- sort(c(outFrags,blinds))
+        message("No first cutter motifs found")
       }
       
       
@@ -744,6 +815,7 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
     return( 0 )
   }
 }
+
 
 getUniqueFragends <- function( fragsGR_Unique, firstcutter_Unique="GATC", secondcutter_Unique="GTAC", captureLen_Unique=50, nThreads_Unique=4, baseFolder_Unique, Bowtie2Folder, assemblyName="mm9", config_genomes ) {
   ##If captureLen is not in colnames, generate this column
@@ -870,6 +942,12 @@ getFragMap <- function( vpChr_FragMap=NULL, firstcutter_FragMap="GATC", secondcu
     message( '         ### Selecting fragments from whole genome', vpChr_FragMap )
     fragsGR <- fragsGR[ fragsGR$unique ]
   }
+  
+  if(length(fragsGR)==0){
+    message('No unique fragment ends found for capture length:',captureLen_FragMap)
+    
+  }
+  
   return(fragsGR)
 }
 
@@ -1086,7 +1164,7 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
   bins=configuration$bins
   mmMax=configuration$mmMax
   normFactor=configuration$normFactor
-
+  alnStart=configuration$alnStart
   
   # create folders
   
@@ -1322,14 +1400,30 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
       ,chrM=configuration$chrM
     )
     
+    if(length(frags)==0){
+      error.msg <- paste("         ### ERROR:", exp.name[i], "No unique fragment ends found for capture length.")
+      message("         ### Skipping experiment.")
+      write( error.msg, log.path, append=TRUE )
+      message( error.msg )
+      next
+      
+    }
     
     message("      >>> Align reads to fragments <<<")
     readsAln <- alignToFragends(
       gAlign=mappedReads
       ,fragments=frags
       ,firstcut=firstcutter
+      ,alnStart=alnStart
     )
     
+    if(is.null(readsAln)){
+      error.msg <- paste("         ### ERROR:", exp.name[i], "No unique fragment ends aligned.")
+      message("         ### Skipping experiment.")
+      write( error.msg, log.path, append=TRUE )
+      message( error.msg )
+      next
+    }
     
     message("      >>> Compute statistics and create report <<<")
     reportAnalysis <- createReport( allReads=readsAln
