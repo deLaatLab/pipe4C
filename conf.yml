@@ -1,5 +1,5 @@
 default:
- fragFolder: /pipeline4C/fragGenome/
+ fragFolder: /path/to/fragFolder/
  normalizeFactor: 1000000
  qualityCutoff : 0
  trimLength : 0
@@ -69,7 +69,7 @@ default:
  bowtie2:
   -
     mm9
-    /data2/repository/genome/mm9/Bowtie2Index/
+    path/to/Bowtie2Index/ (for example /mm9/Bowtie2Index/)
   -
     mm10
     /data2/repository/genome/mm10/Bowtie2Index/
