@@ -9,6 +9,7 @@
 #2021.05.06 :alignToFragends update:
   #Option that aligned read should start at first position RE1
   #Error when no algined fragments are identified
+#2021.08.19 : add prefix for chrom names. by default chr
 
 
 createConfig <- function( confFile=argsL$confFile ){
@@ -42,6 +43,7 @@ createConfig <- function( confFile=argsL$confFile ){
   chrM <- configF$chrM
   chr_fix <- configF$chr_fix
   alnStart <- configF$alnStart
+  prefix <- configF$prefix
   
   # GRCh38 Highlights
   # http://hgdownload.soe.ucsc.edu/gbdb/hg38/html/description.html
@@ -116,6 +118,7 @@ createConfig <- function( confFile=argsL$confFile ){
                 ,chrUn=chrUn
                 ,chrM=chrM
                 ,alnStart=alnStart
+                ,prefix=prefix
                 
                 
                 
@@ -149,10 +152,10 @@ Read.VPinfo<-function(VPinfo.file){
   
   #vpchr <- as.character(gsub("[^0-9XYMxym]", "",VPinfo$vpchr ))
   
-  #To be sure that any kind of chromosome name for different species can be used I only remove spaces and chr.
+  #To be sure that any kind of chromosome name for different species can be used I only remove spaces.
   vpchr <- as.character(gsub(" ", "",VPinfo$vpchr ))
-  vpchr <- as.character(gsub("chr", "",vpchr ))
-  vpchr <- as.character(gsub("Chr", "",vpchr ))
+  #vpchr <- as.character(gsub("chr", "",vpchr ))
+  #vpchr <- as.character(gsub("Chr", "",vpchr ))
   
   vppos <- as.numeric(gsub("\\D+", "", VPinfo$vppos ))
   analysis <- as.character(gsub("[^a-z]", "", VPinfo$analysis ))
@@ -1165,6 +1168,7 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
   mmMax=configuration$mmMax
   normFactor=configuration$normFactor
   alnStart=configuration$alnStart
+  prefix=configuration$prefix
   
   # create folders
   
@@ -1281,7 +1285,10 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
     primer.sequence <- primer[i]
     
     file.fastq <- paste0( FASTQ.demux.F, exp.name[i], ".fastq.gz" )
-    CHR <- paste0("chr", vpChr[i])
+    
+    #CHR <- paste0("chr", vpChr[i])
+    
+    CHR <- paste0(prefix, vpChr[i])
     
     #When the genome is not starting with chr
     #CHR <- vpChr[i]
