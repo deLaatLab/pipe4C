@@ -22,6 +22,7 @@ default:
  chr_fix : FALSE
  chrUn : FALSE
  chrM : FALSE
+ prefix : chr
  
  enzymes:
   -
