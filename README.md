@@ -82,6 +82,7 @@ Download the latest version of the pipeline from this git repository using:
 | chr_fix     | Do not include fix chromosomes in the frag genome                                                                                                                                |
 | chrUn     | Do not include Unknown chromosomes in the frag genome                                                                                                                                |
 | chrM     | Do not include chromosome M in the frag genome                                                                                                                                |
+| prefix     | The chromosome name prefix. For UCSC reference genomes use chr.                                                                                                                                 |
   
   **Table 1.** Description of parameters that need to be defined in the configuration file.
   
