@@ -1,5 +1,6 @@
-VERSION <- '1.1.3'
-#introduced bigwig option
+VERSION <- '1.1.4'
+#1.1.4. introduced prefix
+#1.1.3. introduced bigwig option
 
 
 #.libPaths( c( .libPaths(), "~/mnt/G_drive/Group_deLaat_bioinf/shared/4C-seq_pipeline/R/installed/") )
