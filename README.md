@@ -33,6 +33,10 @@ https://doi.org/10.1016/j.ymeth.2019.07.014
 Download the latest version of the pipeline from this git repository using:
 
 ```
+    $ git clone https://github.com/deLaatLab/pipe4C.git
+    
+    or alternatively:
+    
     $ wget https://github.com/deLaatLab/pipe4C/archive/master.zip
     $ unzip master.zip
     $ cd ./pipe4C-master
