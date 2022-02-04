@@ -807,10 +807,10 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
           }
           
           
-          outFrags <- sort(c(outFrags,blinds, nonBlinds.fe5,nonBlinds.fe3,nonBlinds.fe5.start,nonBlinds.fe3.end))
+          outFrags <- suppressWarnings(sort(c(outFrags,blinds, nonBlinds.fe5,nonBlinds.fe3,nonBlinds.fe5.start,nonBlinds.fe3.end)))
         }else{
           message(paste("No non-blind fragments in",chrom))
-          outFrags <- sort(c(outFrags,blinds))
+          outFrags <- suppressWarnings(sort(c(outFrags,blinds)))
         }
       }else{
         message("No first cutter motifs found")
