@@ -10,7 +10,7 @@
   #Option that aligned read should start at first position RE1
   #Error when no algined fragments are identified
 #2021.08.19 : add prefix for chrom names. by default chr
-
+#2022.02.04: allow primer sequences to be only RE1 motif. This allow the use of fastq files for which the primer has been trimmed of, such as GEO uploads from other groups.
 
 createConfig <- function( confFile=argsL$confFile ){
   configF <- config::get(file=confFile )
@@ -305,7 +305,7 @@ demux.FASTQ <- function(VPinfo, FASTQ.F, FASTQ.demux.F, demux.log.path, overwrit
 }
 
 
-trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F, cutoff, trim.length=0, log.path, min.amount.reads=1000){
+trim.FASTQ <- function( exp.name, primer, firstcutter, secondcutter, file.fastq, trim.F, cutoff, trim.length=0, log.path, min.amount.reads=1000){
   txt.tmp <- paste0( trim.F, exp.name, ".txt" )
   info.file <- paste0( trim.F, exp.name, ".info.rds" )
   if ( file.exists( txt.tmp ) & file.exists( info.file ) ) {
@@ -386,8 +386,14 @@ trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F,
     motif.1st.pos.2nd <- FALSE
     if ( motif.1st.pos > 0 ){
       #Check whether firstcutter motif is within the first 4 nts (as part of a barcode). If so take 2nd firstcutter pos.
-      if ( motif.1st.pos < 5 ){
+      #This is a problem for fastq files for which the primer has been trimmed (GEO fastq files from other groups). Check whether primer sequence is equal to RE motif
+      
+      
+      if ( !primer==firstcutter & motif.1st.pos < 5 ){
+        message("RE1 motif identified in first 4 nts, most likely used as barcode. Use 2nd RE1 motif identified in reads")
+        
         motif.1st.pos.2nd <- TRUE
+        
         #motif.1st.pos <- as.numeric( names( sort( table( gregexpr( firstcutter, sequences )[[1]][2] ), decreasing=TRUE ) )[1] )
         
         motifPos<-sort( table( gregexpr( firstcutter, sequences )[[1]][2] ), decreasing=TRUE )[1]
@@ -443,6 +449,9 @@ trim.FASTQ <- function( exp.name, firstcutter, secondcutter, file.fastq, trim.F,
     write( keep, txt.tmp )
     rm( sequences, demux.fq )
     captureLen <- read.length - motif.1st.pos + 1
+    
+    #If there are many primer dimers than this goed wrong....Maybe just used maximum read length?
+    
     saveRDS( list( captureLen=captureLen, nReads=nReads, motifPosperc=motifPos.perc, readlenperc=read.length.perc  ), file=info.file )
     return( list( captureLen=captureLen, nReads=nReads, motifPosperc=motifPos.perc, readlenperc=read.length.perc ) )
   }
@@ -572,6 +581,7 @@ exportWig <- function( gR, expName, filename, vpPos, vpChr, plotView) {
 }
 
 olRanges <- function(query, subject) {
+ 
   ## Find overlapping ranges
   olindex <- as.matrix(findOverlaps(query, subject))
   query <- query[olindex[,1]]
@@ -640,6 +650,7 @@ alignToFragends <- function( gAlign, fragments, firstcut, alnStart=TRUE ) {
     ovl <- ovl[ strand( ovl )=="+" & ovl$Sstart >= start( ovl ) | strand( ovl )=="-" & ovl$Send <= end( ovl ) ]
   }
   
+  
   if(length(ovl)==0){
     error.msg <- paste( "         ### ERROR: no unique fragment ends aligned" )
     message( error.msg )
@@ -648,6 +659,9 @@ alignToFragends <- function( gAlign, fragments, firstcut, alnStart=TRUE ) {
   
   
   nReads <- tapply( ovl$Sindex, ovl$Qindex, length )
+  
+  
+  
   fragments$reads <- 0
   fragments$reads[ as.numeric( names( nReads ) ) ] <- nReads
   return( fragments )
@@ -897,7 +911,7 @@ getUniqueFragends <- function( fragsGR_Unique, firstcutter_Unique="GATC", second
   return( fragsGR2 )
 }
 
-getFragMap <- function( vpChr_FragMap=NULL, firstcutter_FragMap="GATC", secondcutter_FragMap="GTAC", genome_FragMap="hg19"
+getFragMap <- function( vpChr_FragMap=NULL, onlyUnique="TRUE", firstcutter_FragMap="GATC", secondcutter_FragMap="GTAC", genome_FragMap="hg19"
                         , captureLen_FragMap=60, nThreads_FragMap=10, baseFolder_FragMap, Bowtie2Folder, config_genomes
                         ,chr_random=chr_random, chr_fix=chr_fix,chrUn=chrUn, chrM = chrM) {
   
@@ -939,11 +953,22 @@ getFragMap <- function( vpChr_FragMap=NULL, firstcutter_FragMap="GATC", secondcu
     , config_genomes=config_genomes
   )
   if ( !( is.null( vpChr_FragMap ) ) ) {
-    message('         ### Selecting fragments from ', vpChr_FragMap )
-    fragsGR <- subset( fragsGR, as.character( seqnames(fragsGR) ) == vpChr_FragMap & unique == TRUE )
+    if(onlyUnique=="TRUE"){
+      message('         ### Selecting unique fragments from ', vpChr_FragMap )
+      fragsGR <- subset( fragsGR, as.character( seqnames(fragsGR) ) == vpChr_FragMap & unique == TRUE )  
+    }else{
+      message('         ### Selecting all fragments from ', vpChr_FragMap )
+      fragsGR <- subset( fragsGR, as.character( seqnames(fragsGR) ) == vpChr_FragMap)  
+    }
+    
   } else {
-    message( '         ### Selecting fragments from whole genome', vpChr_FragMap )
-    fragsGR <- fragsGR[ fragsGR$unique ]
+    if(onlyUnique=="TRUE"){
+      message( '         ### Selecting unique fragments from whole genome', vpChr_FragMap )
+      fragsGR <- fragsGR[ fragsGR$unique ]
+    }else{
+      message( '         ### Selecting all fragments from whole genome', vpChr_FragMap )
+    }
+    
   }
   
   if(length(fragsGR)==0){
@@ -1027,25 +1052,33 @@ export.report <- function( RDS.F, OUTPUT.F ){
 createReport <- function( allReads, mapReads, demuxReads, chromosome, vpPos, normFactor=1e6, wSize, nTop
                           , motifPosperc, readlenperc){
   
-  
+
   nMapped <- length( mapReads )
   uniqueReads <- sum( allReads$reads )
   uniqueCaptures <- sum( allReads$reads>0 )
   
-  reads <- allReads[ as.vector( seqnames( allReads ) ) == chromosome ]
+
+  #cis reads
+  nMappedCis <- length( mapReads[ seqnames( mapReads ) == chromosome ] )
+  nMappedCisperc <- round( 100*nMappedCis/nMapped, 2 )
   
+  #reads <- allReads[ as.vector( seqnames( allReads ) ) == chromosome ] #If no reads map to cis chr than this crashed the pipeline --> fix
+  reads<-allReads[seqnames(allReads) == chromosome]
+  
+  
+  if(length(reads)>0){
   cisReads <- sum( reads$reads )
   percCis<-round( 100*cisReads/uniqueReads, 2 ) #this does not exclude the Top reads..
   cisCaptures <- sum( reads$reads>0 )
   
-  nMappedCis <- length( mapReads[ seqnames( mapReads ) == chromosome ] )
-  nMappedCisperc <- round( 100*nMappedCis/nMapped, 2 )
   
-  topIdx <- 1:length( reads ) %in% order( -reads$reads )[ 1:nTop ]
+  topIdx <- 1:length( reads ) %in% order( -reads$reads )[ 1:nTop ] #should we do topReads for all reads instead of cis?
   topReads <- sum( reads$reads[ topIdx ] )
   topPct <- round( 100*topReads/cisReads, digits=2 )
+
   readsGR <- reads[ !topIdx ]
   
+
   allReads.nTop <- subsetByOverlaps( allReads, reads[ topIdx ], invert=T )
   uniqueReads.nTop <- sum( allReads.nTop$reads )
   cisReads.nTop <- sum( readsGR$reads )
@@ -1059,6 +1092,7 @@ createReport <- function( allReads, mapReads, demuxReads, chromosome, vpPos, nor
   capt1Mb <- round( 100*mean( vpWithin1Mb$reads>0 ), digits=2 )
   cov1Mb <- round( 100*sum( vpWithin1Mb$reads )/sum( readsGR$reads ), digits=2 )
   
+
   report <- data.frame(
     nReads=demuxReads # total demux reads
     , motifPosperc=motifPosperc
@@ -1080,6 +1114,29 @@ createReport <- function( allReads, mapReads, demuxReads, chromosome, vpPos, nor
     , cov1Mb=cov1Mb
     , stringsAsFactors=FALSE
   )
+  }else{
+    report <- data.frame(
+      nReads=demuxReads # total demux reads
+      , motifPosperc=motifPosperc
+      , readlenperc=readlenperc
+      , nMapped=nMapped # Bowtie mapped read
+      , nMappedCis=nMappedCis # Bowtie mapped reads in Cis
+      , nMappedCisperc=nMappedCisperc # Bowtie mapped % reads in Cis
+      , fragMapped=uniqueReads # Toal unique reads
+      , fragMappedCis=0
+      , fragMappedCisPerc=NA
+      , fragMappedCisCorr=NA
+      , fragMappedCisPercCorr=NA
+      , nCaptures=uniqueCaptures
+      , nCisCaptures=NA
+      , topPct=NA
+      , capt100Kb=NA
+      , cov100Kb=NA
+      , capt1Mb=NA
+      , cov1Mb=NA
+      , stringsAsFactors=FALSE
+    )
+  }
   
   return( report )
   
@@ -1340,7 +1397,7 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
     }
     
     message( "      >>> Trim of the fastq <<<" )
-    trim.FASTQ <- trim.FASTQ( exp.name=exp.name[i], firstcutter=firstcutter, secondcutter=secondcutter, file.fastq=file.fastq, trim.F=TRIM.F, cutoff=cutoff, trim.length=trim.length, log.path=trim.log.path, min.amount.reads=min.amount.reads)
+    trim.FASTQ <- trim.FASTQ( exp.name=exp.name[i], primer=primer.sequence, firstcutter=firstcutter, secondcutter=secondcutter, file.fastq=file.fastq, trim.F=TRIM.F, cutoff=cutoff, trim.length=trim.length, log.path=trim.log.path, min.amount.reads=min.amount.reads)
     
     txt.tmp <- paste0( TRIM.F, exp.name[i], ".txt" )
     if ( !file.exists( txt.tmp ) ){
@@ -1393,6 +1450,7 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
     message( paste0("      >>> Create frag map for genome: ", genome[i], " with RE1: ", firstcutter, " and RE2: ", secondcutter, " and capture length:", captureLen, " <<<" ) )
     frags <- getFragMap(
       vpChr_FragMap=NULL
+      ,onlyUnique="TRUE"
       ,firstcutter_FragMap=firstcutter
       ,secondcutter_FragMap=secondcutter
       ,genome_FragMap=genome[i]
@@ -1433,6 +1491,8 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
     }
     
     message("      >>> Compute statistics and create report <<<")
+    
+
     reportAnalysis <- createReport( allReads=readsAln
                                     , mapReads=mappedReads
                                     , demuxReads=nReads
