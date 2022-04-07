@@ -731,7 +731,14 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
         
         
         #Only keep RE2 sites that completely overlap with RE1 fragment
-        RE2 <- matchPattern( pattern=secondcutter, subject=frag.genome[[chrom]] )
+        #RE2 <- matchPattern( pattern=secondcutter, subject=frag.genome[[chrom]] )
+        
+        #Allow the usage of N
+        #https://www.rdocumentation.org/packages/Biostrings/versions/2.40.2/topics/matchPattern
+        #IUPAC ambiguity code in the pattern can match any letter in the subject that is associated with the code, and vice versa. 
+        
+        RE2 <- matchPattern( pattern="CTNAG", subject=BSgenome.Hsapiens.UCSC.hg38[["chr1"]], fixed="subject" )
+        
         
         if(length(RE2)>0){
           RE2 <- GRanges( seqnames=chrom, ranges( matchPattern( pattern=secondcutter, subject=frag.genome[[chrom]] ) ) )
