@@ -710,7 +710,7 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
       print( paste( "Processing ", chrom, sep="" ) )
       
       
-      RE1_pos <- matchPattern( pattern=firstcutter, subject=frag.genome[[chrom]] )
+      RE1_pos <- matchPattern( pattern=firstcutter, subject=frag.genome[[chrom]], fixed="subject" )
       
       if (length(RE1_pos)>0){
         
@@ -737,8 +737,9 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
         #https://www.rdocumentation.org/packages/Biostrings/versions/2.40.2/topics/matchPattern
         #IUPAC ambiguity code in the pattern can match any letter in the subject that is associated with the code, and vice versa. 
         
-        RE2 <- matchPattern( pattern="CTNAG", subject=BSgenome.Hsapiens.UCSC.hg38[["chr1"]], fixed="subject" )
+        #RE2 <- matchPattern( pattern="CTNAG", subject=BSgenome.Hsapiens.UCSC.hg38[["chr1"]], fixed="subject" )
         
+        RE2 <- matchPattern( pattern=secondcutter, subject=frag.genome[[chrom]], fixed="subject" )
         
         if(length(RE2)>0){
           RE2 <- GRanges( seqnames=chrom, ranges( matchPattern( pattern=secondcutter, subject=frag.genome[[chrom]] ) ) )
