@@ -11,6 +11,7 @@
   #Error when no algined fragments are identified
 #2021.08.19 : add prefix for chrom names. by default chr
 #2022.02.04: allow primer sequences to be only RE1 motif. This allow the use of fastq files for which the primer has been trimmed of, such as GEO uploads from other groups.
+#2022.04.26:Allow IUPAC ambiquity code in RE motif
 
 createConfig <- function( confFile=argsL$confFile ){
   configF <- config::get(file=confFile )
@@ -742,7 +743,8 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
         RE2 <- matchPattern( pattern=secondcutter, subject=frag.genome[[chrom]], fixed="subject" )
         
         if(length(RE2)>0){
-          RE2 <- GRanges( seqnames=chrom, ranges( matchPattern( pattern=secondcutter, subject=frag.genome[[chrom]] ) ) )
+          #RE2 <- GRanges( seqnames=chrom, ranges( matchPattern( pattern=secondcutter, subject=frag.genome[[chrom]] ) ) )
+          RE2 <- GRanges( seqnames=chrom, ranges( RE2 ) )
           RE2.ol <- olRanges(frag.RE1, RE2)
           RE2.ol <- RE2[RE2.ol[RE2.ol$OLpercS==100]$Sindex]
           blinds <- frag.RE1[!(frag.RE1 %over% RE2.ol)]
@@ -767,7 +769,6 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
         
         
         if(length(nonBlinds)>0){
-          
           nonBlinds$type <- "non_blind"
           nonBlinds.fe5 <- nonBlinds
           end( nonBlinds.fe5 ) <- end( RE2.ol[ findOverlaps( nonBlinds, RE2.ol, select="first" ) ] )
