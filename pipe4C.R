@@ -1,4 +1,5 @@
-VERSION <- '1.1.4'
+VERSION <- '1.1.5'
+#1.1.5. Allow Allow IUPAC ambiquity code in RE motif / Allow RE1 motif as primer sequence
 #1.1.4. introduced prefix
 #1.1.3. introduced bigwig option
 
