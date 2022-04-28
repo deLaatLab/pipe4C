@@ -12,7 +12,7 @@ https://doi.org/10.1016/j.ymeth.2019.07.014
 ## Prerequisites
 
 - A Unix like shell (e.g. Bash v3.2+)
-- Bowtie2 v2.3+ available from http://bowtie-bio.sourceforge.net/bowtie2/.
+- Bowtie2 v2.3+ available from http://bowtie-bio.sourceforge.net/bowtie2/. **note:** If you are using conda to install bowtie2, there seems to be a problem with some versions of Bowtie2 (https://github.com/BenLangmead/bowtie2/issues/336). The solution seems to be conda install tbb=2020.2. 
 - SAMtools v1.3+ available from http://www.htslib.org/. **note:** The pipeline will produce a sort error when older versions are used.
 - R v3.5+ available from https://www.r-project.org/.
 - The following R packages available from CRAN:
