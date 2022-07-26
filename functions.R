@@ -14,6 +14,8 @@
 #2022.04.26:Allow IUPAC ambiquity code in RE motif
 
 createConfig <- function( confFile=argsL$confFile ){
+  message('reading config file')
+  
   configF <- config::get(file=confFile )
   baseFolder <- configF$fragFolder
   normFactor <- configF$normalizeFactor
@@ -101,6 +103,7 @@ createConfig <- function( confFile=argsL$confFile ){
                 ,qualityCutoff=qualityCutoff
                 ,trimLength=trimLength
                 ,minAmountReads=minAmountReads
+                ,maxAmountReads=maxAmountReads
                 ,readsQuality=readsQuality
                 ,cores=cores
                 ,wSize=wSize
