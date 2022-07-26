@@ -22,7 +22,8 @@ createConfig <- function( confFile=argsL$confFile ){
   xaxisUnit <- configF$plot$xaxisUnit
   plotType <- configF$plot$plotType
   binSize <- configF$plot$binSize
-  
+  mmMax <- configF$mismatchMax
+  maxAmountReads <-configF$maxAmountReads
   qualityCutoff <- configF$qualityCutoff
   trimLength <- configF$trimLength
   minAmountReads <- configF$minAmountReads
@@ -38,7 +39,6 @@ createConfig <- function( confFile=argsL$confFile ){
   genomePlot <- configF$genomePlot
   tsv <- configF$tsv
   bins <- configF$bins
-  mmMax <- configF$mismatchMax
   chr_random <- configF$chr_random
   chrUn <- configF$chrUn
   chrM <- configF$chrM
@@ -306,7 +306,7 @@ demux.FASTQ <- function(VPinfo, FASTQ.F, FASTQ.demux.F, demux.log.path, overwrit
 }
 
 
-trim.FASTQ <- function( exp.name, primer, firstcutter, secondcutter, file.fastq, trim.F, cutoff, trim.length=0, log.path, min.amount.reads=1000){
+trim.FASTQ <- function( exp.name, primer, firstcutter, secondcutter, file.fastq, trim.F, cutoff, trim.length=0, log.path, min.amount.reads=1000, maxAmountReads=1e8){
   txt.tmp <- paste0( trim.F, exp.name, ".txt" )
   info.file <- paste0( trim.F, exp.name, ".info.rds" )
   if ( file.exists( txt.tmp ) & file.exists( info.file ) ) {
@@ -316,8 +316,10 @@ trim.FASTQ <- function( exp.name, primer, firstcutter, secondcutter, file.fastq,
     return( readRDS(info.file) ) 
   } else {
     message( paste( "         ### Reading Fastq: ", file.fastq ))
-    demux.fq <- readFastq( file.fastq )
-    # Qualtity trimming::remove? -- lets test it
+    message( paste( "         ### Reading max Reads: ", maxAmountReads ))
+    demux.fq <- readFastq( file.fastq, n=maxAmountReads)
+    
+    # Qualtity trimming
     if ( cutoff > 0 ) {
       # Trim ends with qualtiy score < cutoff
       #trimTailw remove low-quality reads from the right end using a sliding window
@@ -341,6 +343,8 @@ trim.FASTQ <- function( exp.name, primer, firstcutter, secondcutter, file.fastq,
     sequences <- sread( demux.fq )
     nReads <- length( sequences )
     
+    
+    
     if ( nReads < min.amount.reads) {
       error.msg <- paste0( "         ### ERROR: ",exp.name," - Less reads in FASTQ than set as minimum. Reads: ", nReads )
       write( error.msg, log.path, append=TRUE )
@@ -350,6 +354,14 @@ trim.FASTQ <- function( exp.name, primer, firstcutter, secondcutter, file.fastq,
     } else {
       message( paste0( "         ### Total Reads: ", nReads ) )
     }
+    
+    if ( nReads > 2e6) {
+    message("More than 2 million reads sequences. This for normal 4C experiments is not required.")  
+    message("Depending on the memory available in your machine the pipeline may crash. Will fix this in the future.")
+    message("For now a quick fix is to alter the maxAmountReads parameter in the config file. Reduce this number.")
+    }
+    
+
     
     
     #Find the most occuring position of the firstcutter
@@ -1235,6 +1247,7 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
   normFactor=configuration$normFactor
   alnStart=configuration$alnStart
   prefix=configuration$prefix
+  maxAmountReads=configuration$maxAmountReads
   
   # create folders
   
@@ -1301,10 +1314,10 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
   run.par <- data.frame(
     param=c( "pipeline.version", "baseFolder", "VPinfo.file", "FASTQ.F", "OUTPUT.F", "cutoff", "trim.length"
              , "reads.quality", "map.unique", "wSize", "nTop", "make.wig","make.bigwig", "make.cisplot", "make.gwplot", "nThreads"
-             , "normFactor", "nonBlind", "tsv","bins", "mmMax", "minReads" )
+             , "normFactor", "nonBlind", "tsv","bins", "mmMax", "minReads", "maxReads" )
     ,value=c( configuration$pipeline.version, configuration$baseFolder, VPinfo.file, FASTQ.F, OUTPUT.F, cutoff, trim.length
               ,reads.quality, map.unique, wSize, nTop, make.wig, make.BigWig,make.cisplot, make.gwplot, nThreads,normFactor
-              ,nonBlind,tsv,bins,mmMax, min.amount.reads)
+              ,nonBlind,tsv,bins,mmMax, min.amount.reads,maxAmountReads)
   )
   
   
@@ -1406,7 +1419,9 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
     }
     
     message( "      >>> Trim of the fastq <<<" )
-    trim.FASTQ <- trim.FASTQ( exp.name=exp.name[i], primer=primer.sequence, firstcutter=firstcutter, secondcutter=secondcutter, file.fastq=file.fastq, trim.F=TRIM.F, cutoff=cutoff, trim.length=trim.length, log.path=trim.log.path, min.amount.reads=min.amount.reads)
+    trim.FASTQ <- trim.FASTQ( exp.name=exp.name[i], primer=primer.sequence, firstcutter=firstcutter, secondcutter=secondcutter, 
+                              file.fastq=file.fastq, trim.F=TRIM.F, cutoff=cutoff, trim.length=trim.length, log.path=trim.log.path, 
+                              min.amount.reads=min.amount.reads, maxAmountReads=maxAmountReads)
     
     txt.tmp <- paste0( TRIM.F, exp.name[i], ".txt" )
     if ( !file.exists( txt.tmp ) ){

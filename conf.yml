@@ -4,6 +4,7 @@ default:
  qualityCutoff : 0
  trimLength : 0
  minAmountReads : 1000
+ maxAmountReads : 1000000000000
  readsQuality : 1
  cores : 1
  wSize : 21
