@@ -5,6 +5,7 @@ VERSION <- '1.1.5'
 
 
 #.libPaths( c( .libPaths(), "~/mnt/G_drive/Group_deLaat_bioinf/shared/4C-seq_pipeline/R/installed/") )
+#.libPaths( "/home/p.krijger_cbs-niob.local/bin/4C-seq_pipeline/R/installed/")
 
 
 
@@ -58,6 +59,8 @@ option_list = list(
               help="Trim reads to defined capture length from 3-end.",metavar="number"),
   make_option(c("-m", "--minAmountReads"), type="integer", default=NULL,
               help="Minimum amount of reads containing the primer sequence. If less reads are identified the experiment will not be further processed.",metavar="number"),
+  make_option(c("-m", "--maxAmountReads"), type="integer", default=NULL,
+              help="Max amount of reads containing the primer sequence. Lower this value if memory is limited.",metavar="number"),
   make_option(c("-r", "--readsQuality"), type="integer", default=NULL,
               help="Bowtie2 minimum quality mapped reads.",metavar="number"),
   make_option(c("-z", "--cores"), type="integer", default=NULL,
@@ -144,6 +147,9 @@ if (!is.null(argsL$trimLength)){
 if (!is.null(argsL$minAmountReads)){
   configOpt$minAmountReads<-argsL$minAmountReads
 }
+if (!is.null(argsL$maxAmountReads)){
+  configOpt$maxAmountReads<-argsL$maxAmountReads
+}
 if (!is.null(argsL$readsQuality)){
   configOpt$readsQuality<-argsL$readsQuality
 }
@@ -170,7 +176,6 @@ if (argsL$wig){
   configOpt$wig<-argsL$wig
 }
 if (argsL$bigwig){
-  message("Making bigwigs!!")
   configOpt$bigwig<-argsL$bigwig
 }
 if (argsL$plot){
