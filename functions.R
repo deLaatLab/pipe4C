@@ -829,7 +829,7 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
           
           end(nonBlinds.fe5)<-end(RE2[findOverlaps(query=nonBlinds,
                                                    subject=RE2,
-                                                   minoverlap=nchar(Secondmotif),
+                                                   minoverlap=nchar(secondcutter),
                                                    select = "first",
                                                    ignore.strand=FALSE)])
           
@@ -849,7 +849,7 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
           #start( nonBlinds.fe3 ) <- start( RE2.ol[ findOverlaps( nonBlinds, RE2.ol, select="last" ) ] )
           start(nonBlinds.fe3) <-start(RE2[findOverlaps(query=nonBlinds,
                                                         subject=RE2,
-                                                        minoverlap=nchar(Secondmotif),
+                                                        minoverlap=nchar(secondcutter),
                                                         select = "last",
                                                         ignore.strand=FALSE)])
           
@@ -886,7 +886,7 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
               
               start(nonBlinds.fe5.start) <-start(RE2[findOverlaps(query=frag,
                                                                   subject=RE2,
-                                                                  minoverlap=nchar(Secondmotif),
+                                                                  minoverlap=nchar(secondcutter),
                                                                   select = "last",
                                                                   ignore.strand=FALSE)])
 
@@ -908,7 +908,7 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
                    nonBlinds.fe3.end <- RE1[length(RE1)]
                    end(nonBlinds.fe3.end) <-end(RE2[findOverlaps(query=frag,
                                                                  subject=RE2,
-                                                                 minoverlap=nchar(Secondmotif),
+                                                                 minoverlap=nchar(secondcutter),
                                                                  select = "first",
                                                                  ignore.strand=FALSE)])
                    
