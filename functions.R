@@ -168,7 +168,7 @@ Read.VPinfo<-function(VPinfo.file){
   #vpchr <- as.character(gsub("chr", "",vpchr ))
   #vpchr <- as.character(gsub("Chr", "",vpchr ))
   
-  vppos <- as.numeric(gsub("\\D+", "", VPinfo$vppos ))
+  vppos <- as.numeric(gsub("\\D+", "", VPinfo$vppos )) #\D, matches any character that is not a decimal digit.
   analysis <- as.character(gsub("[^a-z]", "", VPinfo$analysis ))
   fastq <- as.character( VPinfo$fastq )
   
@@ -656,6 +656,8 @@ olRanges <- function(query, subject) {
 
 alignToFragends <- function( gAlign, fragments, firstcut, alnStart=TRUE ) {
   
+  #To do: Remove olRanges function.
+  
   strand( fragments ) <- ifelse( fragments$fe_strand==3, "-", "+" )
   ovl <- olRanges( query=fragments, subject=as( gAlign, "GRanges" ) )
   #remove sequences that overlap only with RE motif
@@ -706,7 +708,8 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
     
     chr <- unique( seqnames( frag.genome ) )
     
-    #The "hap" ones are alternate assemblies for certain regions.DO NOT USE THE hap and alt files !!!!
+    #The "hap" ones are alternate assemblies for certain regions.
+    #!! Do NOT use the hap and alt files !!!!
     chr <- chr[ grep( pattern="_hap", x=chr, invert=TRUE ) ]
     chr <- chr[ grep( pattern="_alt", x=chr, invert=TRUE ) ]
     
@@ -753,30 +756,58 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
         }
         
         
-        #Only keep RE2 sites that completely overlap with RE1 fragment
-        #RE2 <- matchPattern( pattern=secondcutter, subject=frag.genome[[chrom]] )
-        
+
         #Allow the usage of N
         #https://www.rdocumentation.org/packages/Biostrings/versions/2.40.2/topics/matchPattern
         #IUPAC ambiguity code in the pattern can match any letter in the subject that is associated with the code, and vice versa. 
-        
         #RE2 <- matchPattern( pattern="CTNAG", subject=BSgenome.Hsapiens.UCSC.hg38[["chr1"]], fixed="subject" )
         
         RE2 <- matchPattern( pattern=secondcutter, subject=frag.genome[[chrom]], fixed="subject" )
         
+
+        
+        
         if(length(RE2)>0){
-          #RE2 <- GRanges( seqnames=chrom, ranges( matchPattern( pattern=secondcutter, subject=frag.genome[[chrom]] ) ) )
           RE2 <- GRanges( seqnames=chrom, ranges( RE2 ) )
-          RE2.ol <- olRanges(frag.RE1, RE2)
-          RE2.ol <- RE2[RE2.ol[RE2.ol$OLpercS==100]$Sindex]
-          blinds <- frag.RE1[!(frag.RE1 %over% RE2.ol)]
-          nonBlinds <- frag.RE1[unique(findOverlaps(frag.RE1,RE2.ol)@from)]
+          
+          #This is wrong
+          #RE2.ol <- olRanges(frag.RE1, RE2)
+          #RE2.ol <- RE2[RE2.ol[RE2.ol$OLpercS==100]$Sindex]
+          #blinds <- frag.RE1[!(frag.RE1 %over% RE2.ol)]
+          #nonBlinds <- frag.RE1[unique(findOverlaps(frag.RE1,RE2.ol)@from)]
+        
+          
+          #For blind fragments only keep RE2 sites that completely overlap with the RE1 fragment.
+            
+          blinds <- frag.RE1[
+            -(unique(
+              subjectHits(
+                findOverlaps(
+                  query=RE2,
+                  subject=frag.RE1,
+                  type="within",
+                  ignore.strand=FALSE)
+              )
+            ))
+            ]
+          
+          nonBlinds <- frag.RE1[unique(subjectHits(findOverlaps(query=RE2,
+                                                                subject=frag.RE1,
+                                                                type="within",
+                                                                ignore.strand=FALSE)))]
+          
+          
+          
+          
           
         }else{
           message("No RE2 motifs found")
           blinds <- frag.RE1
           nonBlinds <- GRanges()
         }
+        
+        
+        
         
         if(length(blinds)>0){
           blinds$type <- "blind"
@@ -793,9 +824,21 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
         if(length(nonBlinds)>0){
           nonBlinds$type <- "non_blind"
           nonBlinds.fe5 <- nonBlinds
-          end( nonBlinds.fe5 ) <- end( RE2.ol[ findOverlaps( nonBlinds, RE2.ol, select="first" ) ] )
+          
+          #end( nonBlinds.fe5 ) <- end( RE2.ol[ findOverlaps( nonBlinds, RE2.ol, select="first" ) ] )
+          
+          end(nonBlinds.fe5)<-end(RE2[findOverlaps(query=nonBlinds,
+                                                   subject=RE2,
+                                                   minoverlap=nchar(Secondmotif),
+                                                   select = "first",
+                                                   ignore.strand=FALSE)])
+          
           
           if (length(RE1_pos)==1){
+            
+            #Only keep the fragend downstream of the RE1
+            #-----------------RE1--------------------------
+            
             nonBlinds.fe5<-nonBlinds.fe5[2]
           }
           
@@ -803,7 +846,13 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
           
           
           nonBlinds.fe3 <- nonBlinds
-          start( nonBlinds.fe3 ) <- start( RE2.ol[ findOverlaps( nonBlinds, RE2.ol, select="last" ) ] )
+          #start( nonBlinds.fe3 ) <- start( RE2.ol[ findOverlaps( nonBlinds, RE2.ol, select="last" ) ] )
+          start(nonBlinds.fe3) <-start(RE2[findOverlaps(query=nonBlinds,
+                                                        subject=RE2,
+                                                        minoverlap=nchar(Secondmotif),
+                                                        select = "last",
+                                                        ignore.strand=FALSE)])
+          
           
           if (length(RE1_pos)==1){
             nonBlinds.fe3<-nonBlinds.fe3[1]
@@ -816,25 +865,66 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
           
           if (length(RE1_pos)>1){
             #Add first and last fragends
-            if ( start( head( RE1, 1 ) ) > start( head( RE2, 1 ) ) ){
-              frag <- GRanges( seqnames=chrom, IRanges( 1, end(RE1[1]) ) )
-              RE2.ol.start <- olRanges(frag, RE2)
-              RE2.ol.start <- RE2[RE2.ol.start[RE2.ol.start$OLpercS==100]$Sindex]
+            
+            # if ( start( head( RE1, 1 ) ) > start( head( RE2, 1 ) ) ){
+            #   frag <- GRanges( seqnames=chrom, IRanges( 1, end(RE1[1]) ) )
+            #   RE2.ol.start <- olRanges(frag, RE2)
+            #   RE2.ol.start <- RE2[RE2.ol.start[RE2.ol.start$OLpercS==100]$Sindex]
+            #   nonBlinds.fe5.start <- RE1[1]
+            #   start(nonBlinds.fe5.start) <- start(RE2.ol.start[findOverlaps(frag, RE2.ol.start,select="last")])
+            #   nonBlinds.fe5.start$type <- "non_blind"
+            #   nonBlinds.fe5.start$fe_strand <- 5
+            # }
+            
+            if (start(RE1)[1] > start(RE2[1])) {
+              
+              #-----------RE2------RE1----------------------end
+              #first frament end will be added
+              
+              frag <- GRanges(seqnames = chrom, IRanges(1, end(RE1[1])))
               nonBlinds.fe5.start <- RE1[1]
-              start(nonBlinds.fe5.start) <- start(RE2.ol.start[findOverlaps(frag, RE2.ol.start,select="last")])
+              
+              start(nonBlinds.fe5.start) <-start(RE2[findOverlaps(query=frag,
+                                                                  subject=RE2,
+                                                                  minoverlap=nchar(Secondmotif),
+                                                                  select = "last",
+                                                                  ignore.strand=FALSE)])
+
               nonBlinds.fe5.start$type <- "non_blind"
               nonBlinds.fe5.start$fe_strand <- 5
+             
             }
+      
+            
+            
+            
             
             if ( end( tail( RE1, 1 ) ) <  end( tail( RE2, 1 ) ) ){
-              frag <- GRanges( seqnames=chrom, IRanges( start(RE1[length(RE1)]), end(RE2[length(RE2)]) ) )
-              RE2.ol.start <- olRanges(frag, RE2)
-              RE2.ol.start <- RE2[RE2.ol.start[RE2.ol.start$OLpercS==100]$Sindex]
-              nonBlinds.fe3.end <- RE1[length(RE1)]
-              end(nonBlinds.fe3.end) <- end(RE2.ol.start[findOverlaps(frag, RE2.ol.start,select="first")])
-              nonBlinds.fe3.end$type <- "non_blind"
-              nonBlinds.fe3.end$fe_strand <- 3
-            }
+               frag <- GRanges( seqnames=chrom, IRanges( start(RE1[length(RE1)]), end(RE2[length(RE2)]) ) )
+            
+            #   RE2.ol.start <- olRanges(frag, RE2)
+            #   RE2.ol.start <- RE2[RE2.ol.start[RE2.ol.start$OLpercS==100]$Sindex]
+            
+                   nonBlinds.fe3.end <- RE1[length(RE1)]
+                   end(nonBlinds.fe3.end) <-end(RE2[findOverlaps(query=frag,
+                                                                 subject=RE2,
+                                                                 minoverlap=nchar(Secondmotif),
+                                                                 select = "first",
+                                                                 ignore.strand=FALSE)])
+                   
+              
+            #   end(nonBlinds.fe3.end) <- end(RE2.ol.start[findOverlaps(frag, RE2.ol.start,select="first")])
+               nonBlinds.fe3.end$type <- "non_blind"
+               nonBlinds.fe3.end$fe_strand <- 3
+             }
+            
+            
+              
+            
+              
+            
+            
+            
           }
           
           
@@ -1984,6 +2074,8 @@ exportBigWig <- function(GR, OutFile, assemblyName,config_genomes){
   
   message("Converting RDS to BigWig file: ",OutFile)
     
+  #Maybe better to keep original frag end coordinates?
+  
     start(GR)<-GR$pos
     end(GR)<-GR$pos
     GR$score<-GR$norm4C
