@@ -703,6 +703,12 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
   rdsFile <- paste0( baseFolder_Digest, assemblyName, "_", firstcutter, "_", secondcutter, ".rds" )
   
   if ( !file.exists( rdsFile ) ){
+    
+    if(!dir.exists( baseFolder_Digest )){
+      dir.create( baseFolder_Digest )
+    } 
+    
+    
     do.call( require, args=list( config_genomes[ assemblyName, ] ) )
     assign( 'frag.genome', base::get( config_genomes[ assemblyName, ] ) )
     
