@@ -656,9 +656,18 @@ olRanges <- function(query, subject) {
 
 alignToFragends <- function( gAlign, fragments, firstcut, alnStart=TRUE ) {
   
-  #To do: Remove olRanges function.
+  
   
   strand( fragments ) <- ifelse( fragments$fe_strand==3, "-", "+" )
+  
+  
+  #To do: Remove olRanges function.
+  #https://rdrr.io/bioc/IRanges/man/findOverlaps-methods.html
+  #If type is start or end, the intervals are required to have matching starts or ends, 
+  #minoverlap=nchar(firstcut)+1
+  
+  
+  
   ovl <- olRanges( query=fragments, subject=as( gAlign, "GRanges" ) )
   #remove sequences that overlap only with RE motif
   ovl <- ovl[ ovl$OLlength >= nchar( as.character( firstcut ) )+1 ]
@@ -843,8 +852,7 @@ Digest <- function( assemblyName, firstcutter_Digest, secondcutter_Digest, baseF
           if (length(RE1_pos)==1){
             
             #Only keep the fragend downstream of the RE1
-            #-----------------RE1--------------------------
-            
+
             nonBlinds.fe5<-nonBlinds.fe5[2]
           }
           
@@ -1884,7 +1892,7 @@ getPeakCPeaks <- function(resPeakC,min.gapwidth=4e3) {
   
 }
 
-exportPeakCPeaks <- function(resPeakC,bedFile,name=NULL,desc=NULL,includeVP=TRUE,min.gapwidth=0) {
+exportPeakCPeaks <- function(resPeakC,bedFile,name=NULL,desc=NULL,includeVP=TRUE,min.gapwidth=4e3) {
   
   vpChr <- resPeakC$vpChr
   vpPos <- resPeakC$vpPos
@@ -1943,7 +1951,7 @@ exportPeakCPeaks <- function(resPeakC,bedFile,name=NULL,desc=NULL,includeVP=TRUE
   
 }
 
-doPeakC <- function(rdsFiles, vpRegion=2e6, wSize=21,alphaFDR=0.05,qWd=1.5,qWr=1,minDist=15e3) {
+doPeakC <- function(rdsFiles, vpRegion=2e6, wSize=21,alphaFDR=0.05,qWd=1.5,qWr=1,minDist=15e3,min.gapwidth=4e3) {
   
   if( !suppressMessages(require( "peakC", character.only=TRUE ) ) ) stop( "Package not found: peakC" )
   if( !suppressMessages(require( "GenomicRanges", character.only=TRUE ) ) ) stop( "Package not found: GenomicRanges" )
@@ -2011,7 +2019,7 @@ doPeakC <- function(rdsFiles, vpRegion=2e6, wSize=21,alphaFDR=0.05,qWd=1.5,qWr=1
   
   if(length(resPeakC$peak)>0){
   
-  	resPeakC$exportPeakGR <- getPeakCPeaks(resPeakC)
+  	resPeakC$exportPeakGR <- getPeakCPeaks(resPeakC,min.gapwidth=min.gapwidth)
   
   } else{
     
