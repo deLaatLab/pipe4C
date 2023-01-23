@@ -84,7 +84,7 @@ Download the latest version of the pipeline from this git repository using:
 | bins            | Count reads for binned regions                                                                                                                                                                |
 | mismatchMax     | The maximum number of mismatches allowed during demultiplexing                                                                                                                                |
 | chr_random     | Do not include random chromosomes in the frag genome                                                                                                                                |
-| chr_fix     | Do not include fix chromosomes in the frag genome                                                                                                                                |
+| chr_fix     | Do not include fix chromosomes in the frag genome  (Fix patches denoted by chr__fix represent changes to the existing sequence.)                                                                                                                              |
 | chrUn     | Do not include Unknown chromosomes in the frag genome                                                                                                                                |
 | chrM     | Do not include chromosome M in the frag genome                                                                                                                                |
 | prefix     | The chromosome name prefix. For UCSC reference genomes use chr.                                                                                                                                 |
