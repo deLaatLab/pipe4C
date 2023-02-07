@@ -1,4 +1,7 @@
-VERSION <- '1.1.5'
+VERSION <- '1.1.6'
+
+#1.1.6  Fix bug in bigwig function. Keep all chroms
+
 #1.1.5. Allow Allow IUPAC ambiquity code in RE motif / Allow RE1 motif as primer sequence
 #1.1.4. introduced prefix
 #1.1.3. introduced bigwig option
@@ -192,8 +195,25 @@ if (argsL$alnStart){
 
 #Check whether Bowtie2 and samtools are installed..
 
-
-
+# #https://github.com/robinweide/tagmeppr/blob/master/R/align.R
+# BWA <- NULL
+# if(is.null(BWA_path)){
+#   BWA <- system('which bwa', intern = T)
+# } else if(!is.null(BWA_path)){
+#   BWA <- BWA_path
+# } else {
+#   stop('bwa not found')
+# }
+# 
+# 
+# SAMTOOLS <- NULL
+# if(is.null(samtools_path)){
+#   SAMTOOLS <- system('which samtools', intern = T)
+# } else if(!is.null(samtools_path)){
+#   SAMTOOLS <- samtools_path
+# } else {
+#   stop('samtools not found')
+# }
 
 
 
