@@ -48,23 +48,14 @@ createConfig <- function( confFile=argsL$confFile ){
   alnStart <- configF$alnStart
   prefix <- configF$prefix
   
-  #Add forward slash if missing baseFolder<-'PK/FragF'
+  #Add forward slash to baseF if missing
   if(!substr(baseFolder, nchar(baseFolder), nchar(baseFolder))=='/'){
     baseFolder<-paste0(baseFolder,'/')
   }
     
-    
   
-  # GRCh38 Highlights
-  # http://hgdownload.soe.ucsc.edu/gbdb/hg38/html/description.html
-  # Alternate sequences - Several human chromosomal regions exhibit sufficient variability to prevent adequate representation by a single sequence. To address this, the GRCh38 assembly provides alternate sequence for selected variant regions through the inclusion of alternate loci scaffolds (or alt loci). Alt loci are separate accessioned sequences that are aligned to reference chromosomes. The GRCh38 initial assembly contained 261 alt loci, many of which are associated with the LRC/KIR area of chr19 and the MHC region on chr6. Subsequent GRC patch releases have added additional alt loci and fix patches. See the sequences page for the latest list of the reference chromosomes, alternate, and patch sequences in GRCh38.
-  # Fix sequences - Fix patches denoted by chr__fix represent changes to the existing sequence. These are generally error corrections (such as base changes, component replacements/updates, switch point updates or tiling path changes) or assembly improvements (such as extension of sequence into gaps). These fix patch scaffold sequences are given chromosome context through alignments to the corresponding chromosome regions. A list of all chromosomes including chr_fix sequences can be found in the sequences page.
-  # Centromere representation - Debuting in this release, the large megabase-sized gaps that represented centromeric regions in previous assemblies have been replaced by sequences from centromere models created by Karen Miga et al., using centromere databases developed during her work in the Willard lab at Duke University (now at the University of Chicago) and analysis software developed while working in the Kent lab at UCSC. The models, which provide the approximate repeat number and order for each centromere, will be useful for read mapping and variation studies.
-  # Mitochondrial genome - The mitochondrial reference sequence included in the GRCh38 assembly (termed "chrM" in the UCSC Genome Browser) is the Revised Cambridge Reference Sequence (rCRS) from MITOMAP with GenBank accession number J01415.2 and RefSeq accession number NC_012920.1. This differs from the chrM sequence (RefSeq accession number NC_001807) provided by the Genome Browser for hg19, which was not updated when the GRCh37 assembly later transitioned to the new version.
-  # Sequence updates - Several erroneous bases and misassembled regions in GRCh37 have been corrected in the GRCh38 assembly, and more than 100 gaps have been filled or reduced. Much of the data used to improve the reference sequence was obtained from other genome sequencing and analysis projects, such as the 1000 Genomes Project.
-  # Analysis set - The GRCh38 assembly offers an "analysis set" that was created to accommodate next generation sequencing read alignment pipelines. To avoid false mapping of reads, duplicate copies of centromeric arrays and WGS on several chromosomes have been hard-masked with Ns. The two PAR regions on chromosome Y have also been hard-masked, and the Epstein-Barr virus sequence has been added as a decoy to attract contamination in samples. Two versions of the analysis set are available on our downloads page: one without the alternate chromosomes from this assembly, and one that includes them.
-  # 
   
+
   enzymes <- data.frame( 
     name=as.character( sapply( configF$enzymes, function(x) strsplit( x, split=' ' )[[1]][1] ) )
     , RE.seq=as.character( sapply( configF$enzymes, function(x) strsplit( x, split=' ' )[[1]][2] ) )
@@ -480,8 +471,11 @@ trim.FASTQ <- function( exp.name, primer, firstcutter, secondcutter, file.fastq,
   }
 }
 
-#Only unique, use grep and samtools or use R for this?
+
 makeBAM <- function( exp.name, BAM.F, NCORES, Bowtie2Folder, genome, txt.tmp, log.path, bowtie.log.path, bamFile, map.unique, readsQual=1 ) {
+  
+  #Only unique, use grep and samtools or use R for this?
+  
   TEMPfile <- tempfile( pattern = "aln.", tmpdir = tempdir(), fileext = "" )
   check.trunc <- 1
   while ( check.trunc < 10 ) {
@@ -594,6 +588,7 @@ exportWig <- function( gR, expName, filename, vpPos, vpChr, plotView) {
   chrs <- as.vector( unique( seqnames( gR ) ) )
   for( chr in chrs ) {
     #chrLine <- paste0( "variableStep chrom=", chr, " span=100\n" )
+    #wigToBigWig requires fixed bins.
     chrLine <- paste0( "variableStep chrom=", chr, " span=1\n" )
     cat( chrLine, file=gz1, append=TRUE )
     chrGr <- gR[seqnames(gR)==chr]
@@ -1860,11 +1855,7 @@ getVPReads <- function(rds,vpRegion=2e6) {
   reads <- rds$reads
   vppos <- rds$vpInfo$pos
   vpChr <- rds$vpInfo$chr
-  
-  zoom <- GRanges( seqnames=vpChr, resize(IRanges(vppos,vppos),width=vpRegion,fix="center") )
-  
-  #vpGR <- reads[unique(queryHits(findOverlaps(ranges(reads),resize(IRanges(vppos,vppos),width=vpRegion,fix="center"))))]
-  
+  zoom <- GRanges(seqnames=vpChr, resize(IRanges(vppos,vppos),width=vpRegion,fix="center") )
   vpGR <- reads[unique(queryHits(findOverlaps(reads,zoom)))]
   
   peakCDat <- data.frame(pos=vpGR$pos,reads=vpGR$reads)
