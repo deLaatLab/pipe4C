@@ -12,6 +12,7 @@
 #2021.08.19 : add prefix for chrom names. by default chr
 #2022.02.04: allow primer sequences to be only RE1 motif. This allow the use of fastq files for which the primer has been trimmed of, such as GEO uploads from other groups.
 #2022.04.26:Allow IUPAC ambiquity code in RE motif
+#2023 updated bigwig function to keep non std chroms
 
 createConfig <- function( confFile=argsL$confFile ){
   message('reading config file')
@@ -1321,21 +1322,7 @@ createPlot <- function( plotTitle, vpPos, chromosome, fragGR, plotLegend=NULL, p
 Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
   
   
-  
-  
-  
-  #4C-pipeline  
-  #1. demux.FASTQ
-  #2. trim.FASTQ
-  #3. mapped trimmer.files using bowtie2
-  #4. extract unique reads
-  #5. make RDS file
-  #6. make PDF
-  #7. make WIG
-  #8. make report
-  
-  
-  
+
   
   cutoff = configuration$qualityCutoff
   trim.length = configuration$trimLength
@@ -1358,9 +1345,12 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
   prefix=configuration$prefix
   maxAmountReads=configuration$maxAmountReads
   
-  # create folders
   
-  # define folder names
+
+  
+  #Create output folders
+  
+  # define folder names. 
   LOG.F <- gsub( x=paste0( OUTPUT.F, "/LOG/" ), pattern='//', replacement='/' )
   FASTQ.demux.F <- gsub( x=paste0( OUTPUT.F, "/FASTQ/" ), pattern='//', replacement='/' )
   TRIM.F <-gsub( x=paste0( OUTPUT.F, "/TRIMMED/" ), pattern='//', replacement='/' )
@@ -1373,17 +1363,17 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
   GENOMEPLOT.F <- gsub( x=paste0( OUTPUT.F, "/GENOMEPLOT/" ), pattern='//', replacement='/' )
   TSV.F <- gsub( x=paste0( OUTPUT.F, "/TSV/" ), pattern='//', replacement='/' )
   
+
   logDirs <- list()
-  
-  ##To do: replace ifelse for if statement or give FALSE statement...
-  logDirs$outFolder <- ifelse( !dir.exists( OUTPUT.F ), dir.create( OUTPUT.F ), FALSE )
-  logDirs$logFolder <- ifelse( !dir.exists( LOG.F ), dir.create( LOG.F ), FALSE )
-  logDirs$fastqFolder <- ifelse( !dir.exists( FASTQ.demux.F ), dir.create( FASTQ.demux.F ), FALSE )
-  logDirs$trimFolder <- ifelse( !dir.exists( TRIM.F ), dir.create( TRIM.F ), FALSE )
-  logDirs$bamFolder <- ifelse( !dir.exists( BAM.F ), dir.create( BAM.F ), FALSE )
-  logDirs$rdsFolder <- ifelse( !dir.exists( RDS.F ), dir.create( RDS.F ), FALSE )
-  logDirs$rdsbinFolder <- ifelse( !dir.exists( RDS.BIN.F ), dir.create( RDS.BIN.F ), FALSE )
-  
+  logDirs$outFolder    <- if( !dir.exists( OUTPUT.F )){dir.create( OUTPUT.F )
+  logDirs$logFolder    <- if( !dir.exists( LOG.F )){dir.create( LOG.F )}
+  logDirs$fastqFolder  <- if( !dir.exists( FASTQ.demux.F )){dir.create( FASTQ.demux.F )}
+  logDirs$trimFolder   <- if( !dir.exists( TRIM.F )){dir.create( TRIM.F )}
+  logDirs$bamFolder    <- if( !dir.exists( BAM.F )){dir.create( BAM.F )}
+  logDirs$rdsFolder    <- if( !dir.exists( RDS.F )){dir.create( RDS.F )}
+  logDirs$rdsbinFolder <- if( !dir.exists( RDS.BIN.F )){dir.create( RDS.BIN.F )}
+
+    
   # Extract experiments from VPinfo, remove weird characters and save in output folder. 
   message( paste0( "\n------ Reading the VP info file: ", VPinfo.file ) )
   VPinfo <- Read.VPinfo( VPinfo.file )
@@ -1421,15 +1411,13 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
   # Save Run parameters to logfile
   
   run.par <- data.frame(
-    param=c( "pipeline.version", "baseFolder", "VPinfo.file", "FASTQ.F", "OUTPUT.F", "cutoff", "trim.length"
-             , "reads.quality", "map.unique", "wSize", "nTop", "make.wig","make.bigwig", "make.cisplot", "make.gwplot", "nThreads"
-             , "normFactor", "nonBlind", "tsv","bins", "mmMax", "minReads", "maxReads" )
-    ,value=c( configuration$pipeline.version, configuration$baseFolder, VPinfo.file, FASTQ.F, OUTPUT.F, cutoff, trim.length
-              ,reads.quality, map.unique, wSize, nTop, make.wig, make.BigWig,make.cisplot, make.gwplot, nThreads,normFactor
-              ,nonBlind,tsv,bins,mmMax, min.amount.reads,maxAmountReads)
+    param=c( "pipeline.version", "baseFolder", "VPinfo", "FASTQ.F", "OUTPUT.F", "nThreads", "Quality.cutoff", "trim.length", "mmMax", "minReads", "maxReads"
+             , "reads.quality", "map.unique", "alnStart","wSize", "nTop", "normFactor", "nonBlind","make.wig","make.bigwig", "make.cisplot", "make.gwplot", 
+              "tsv","bins")
+    ,value=c( configuration$pipeline.version, configuration$baseFolder, VPinfo.file, FASTQ.F, OUTPUT.F, nThreads, cutoff, trim.length, mmMax, min.amount.reads,maxAmountReads
+              ,reads.quality, map.unique, alnStart, wSize, nTop, normFactor
+              ,nonBlind, make.wig, make.BigWig,make.cisplot, make.gwplot, tsv,bins)
   )
-  
-  
   
   write.table( run.par, log.path, quote=FALSE, col.names=FALSE, row.names=FALSE, append=TRUE )                    
   
@@ -1468,19 +1456,12 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
       next
     }
     
-    
-    
+
     primer.sequence <- primer[i]
     
     file.fastq <- paste0( FASTQ.demux.F, exp.name[i], ".fastq.gz" )
-    
-    #CHR <- paste0("chr", vpChr[i])
-    
     CHR <- paste0(prefix, vpChr[i])
-    
-    #When the genome is not starting with chr
-    #CHR <- vpChr[i]
-    
+
     if ( exp.name[i] %in% exp.name[ duplicated( exp.name ) ] ) {  
       error.msg <- paste0( "      ### ERROR: Experiment name not unique for ", exp.name[i] )
       write( error.msg, log.path, append=TRUE )
@@ -2082,9 +2063,23 @@ exportBigWig <- function(GR, OutFile, assemblyName,config_genomes){
   #Maybe better to keep original frag end coordinates?
   
     start(GR)<-GR$pos
-    end(GR)<-GR$pos
-    GR$score<-GR$norm4C
-    seqinfo(GR)<-keepStandardChromosomes(seqinfo(genome))  
+    end(GR)  <-GR$pos
+    GR$score <-GR$norm4C
+    
+    #seqinfo(GR)<-keepStandardChromosomes(seqinfo(genome))  
+  
+    seqinfo(GR)<-seqinfo(genome)
+    
     rtracklayer::export(GR, OutFile)
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
  
 }
