@@ -1365,7 +1365,7 @@ Run.4Cpipeline <- function( VPinfo.file, FASTQ.F, OUTPUT.F, configuration){
   
 
   logDirs <- list()
-  logDirs$outFolder    <- if( !dir.exists( OUTPUT.F )){dir.create( OUTPUT.F )
+  logDirs$outFolder    <- if( !dir.exists( OUTPUT.F )){dir.create( OUTPUT.F )}
   logDirs$logFolder    <- if( !dir.exists( LOG.F )){dir.create( LOG.F )}
   logDirs$fastqFolder  <- if( !dir.exists( FASTQ.demux.F )){dir.create( FASTQ.demux.F )}
   logDirs$trimFolder   <- if( !dir.exists( TRIM.F )){dir.create( TRIM.F )}
