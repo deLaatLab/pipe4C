@@ -358,7 +358,7 @@ trim.FASTQ <- function( exp.name, primer, firstcutter, secondcutter, file.fastq,
     }
     
     if ( nReads > 2e6) {
-    message("More than 2 million reads sequences. This for normal 4C experiments is not required.")  
+    message("More than 2 million reads sequences. This is for normal 4C experiments is not required.")  
     message("Depending on the memory available in your machine the pipeline may crash. Will fix this in the future.")
     message("For now a quick fix is to alter the maxAmountReads parameter in the config file. Reduce this number.")
     }
@@ -465,7 +465,7 @@ trim.FASTQ <- function( exp.name, primer, firstcutter, secondcutter, file.fastq,
     rm( sequences, demux.fq )
     captureLen <- read.length - motif.1st.pos + 1
     
-    #If there are many primer dimers than this goed wrong....Maybe just used maximum read length?
+    #If there are many primer dimers than this goes wrong....Maybe just used maximum read length?
     
     saveRDS( list( captureLen=captureLen, nReads=nReads, motifPosperc=motifPos.perc, readlenperc=read.length.perc  ), file=info.file )
     return( list( captureLen=captureLen, nReads=nReads, motifPosperc=motifPos.perc, readlenperc=read.length.perc ) )
@@ -2067,7 +2067,7 @@ exportBigWig <- function(GR, OutFile, assemblyName,config_genomes){
     GR$score <-GR$norm4C
     
     #seqinfo(GR)<-keepStandardChromosomes(seqinfo(genome))  
-  
+    seqlevels(GR)<-seqlevels(genome)
     seqinfo(GR)<-seqinfo(genome)
     
     rtracklayer::export(GR, OutFile)
