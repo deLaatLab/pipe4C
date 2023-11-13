@@ -1864,62 +1864,35 @@ getPeakCPeaks <- function(resPeakC,min.gapwidth=4e3) {
   
 }
 
-exportPeakCPeaks <- function(resPeakC,bedFile,name=NULL,desc=NULL,includeVP=TRUE,min.gapwidth=4e3) {
+exportPeakCPeaks <- function(resPeakC,bedFile,name=NULL,desc=NULL,min.gapwidth=4e3) {
   
   vpChr <- resPeakC$vpChr
   vpPos <- resPeakC$vpPos
   
   if(is.null(name)) {
-    
     name <- "peakC_track"
-    
   }
   
   if(is.null(desc)) {
-    
     desc <- paste0("peakC peaks on ",vpChr)
-    
   }
   
-  
-  
-  vpGR <- resize(GRanges(seqnames=vpChr,IRanges(vpPos,vpPos)),width=1e3,fix="center")
   
   browserPos <- paste0(vpChr,":",vpPos-1e6,"-",vpPos+1e6)
   browserPosLine <- paste("browser position",browserPos,"\n")
   cat(browserPosLine,file=bedFile)
-  
   trackLine <- paste0('track name=\"',name,'\" description=\"',desc,'\" visibility=2 itemRgb=\"On\"',"\n")
   cat(trackLine,file=bedFile,append=TRUE)
   
   if(min.gapwidth>0) {
-    
-    resPeakC$exportPeakGR <- getPeakCPeaks(resPeakC,chr=resPeakC$vpChr,min.gapwidth=min.gapwidth)
-    
+    resPeakC$exportPeakGR <- getPeakCPeaks(resPeakC,min.gapwidth=min.gapwidth)
   }
   
-  if(includeVP) {
-    
-    if(!is.null(resPeakC$exportPeakGR)){
-    
-      bedDF <- as.data.frame(resPeakC$exportPeakGR)[,1:3]
-      colnames(bedDF)[1] <- "chr"
-      write.table(bedDF,file=bedFile,sep="\t",row.names=FALSE,col.names=FALSE,quote=FALSE,append=TRUE)
-    
-    }
-    
-  } else {
-    
-    if(!is.null(resPeakC$exportPeakGR)){
-      
-      bedDF <- as.data.frame(resPeakC$exportPeakGR)[,1:3]
-      colnames(bedDF)[1] <- "chr"
-      write.table(bedDF,file=bedFile,sep="\t",row.names=FALSE,col.names=FALSE,quote=FALSE,append=TRUE)
-    
-    }
-  
+  if(!is.null(resPeakC$exportPeakGR)){
+    bedDF <- as.data.frame(resPeakC$exportPeakGR)[,1:3]
+    colnames(bedDF)[1] <- "chr"
+    write.table(bedDF,file=bedFile,sep="\t",row.names=FALSE,col.names=FALSE,quote=FALSE,append=TRUE)
   }
-  
   
 }
 
@@ -1940,6 +1913,7 @@ doPeakC <- function(rdsFiles, vpRegion=2e6, wSize=21,alphaFDR=0.05,qWd=1.5,qWr=1
     
     peakCDat <- list()
     vppos <- vector()
+    vpChr <- vector()
     
     for(i in 1:num.exp) {
       
@@ -1947,7 +1921,7 @@ doPeakC <- function(rdsFiles, vpRegion=2e6, wSize=21,alphaFDR=0.05,qWd=1.5,qWr=1
         message("Loading data for experiment: ", rdsFiles[i])
         rds <- readRDS(rdsFiles[i])
         vppos[i] <- rds$vpInfo$pos
-        vpChr <- as.vector(rds$vpInfo$chr)
+        vpChr[i] <- rds$vpInfo$chr
         peakCDat[[i]] <- getVPReads(rds=rds,vpRegion=vpRegion)
       }else {
         stop( paste0("File not found: ",rdsFiles[i]) )
@@ -1955,17 +1929,17 @@ doPeakC <- function(rdsFiles, vpRegion=2e6, wSize=21,alphaFDR=0.05,qWd=1.5,qWr=1
       
     }
     
-    
     vppos <- unique(vppos)
     vpChr <- unique(vpChr)
     
     message("viewpoint position: ",vppos)
+    message("viewpoint chromosome: ",vpChr) 
     
-    
-    if(length(vppos)==1){
+
+    if(length(vppos)==1 & length(vpChr)==1){
       resPeakC <- suppressWarnings(combined.analysis(data=peakCDat,num.exp=num.exp,vp.pos=vppos,wSize=wSize,alphaFDR=alphaFDR,qWr=qWr,minDist=minDist))
     }else{
-      stop(paste0("Viewpoint positions not unique"))
+      stop(paste0("Viewpoint positions or chromosome not unique"))
     }
     
     
@@ -1974,7 +1948,7 @@ doPeakC <- function(rdsFiles, vpRegion=2e6, wSize=21,alphaFDR=0.05,qWd=1.5,qWr=1
   if(num.exp==1){
     
     rds <- readRDS(rdsFiles[1])
-    vppos <- rds$vpInfo$pos
+    vppos <- as.vector(rds$vpInfo$pos)
     vpChr <- as.vector(rds$vpInfo$chr)
     peakCDat <- getVPReads(rds=rds,vpRegion=vpRegion)
     resPeakC <- suppressWarnings(single.analysis(data=peakCDat,vp.pos=vppos,wSize=wSize,qWd=qWd,qWr=qWr,minDist=minDist))
