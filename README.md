@@ -2,8 +2,6 @@
 
 A pipeline that processes multiplexed 4C-seq reads directly from FASTQ files. It generates files in a range of widely used formats to facilitate visualization and further data analysis using standard genome browsers and tools, including our recently developed peak caller for 4C-seq data peakC.
 
-If you have any difficulties using the pipeline, please do not hesitate to contact us (delaatbioinf@hubrecht.eu).
-
 ## Citation
 
 Krijger PHL, Geeven G, Bianchi V, Hilvering CRE, de Laat W. 4C-seq from beginning to end: A detailed protocol for sample preparation and data analysis. Methods. 2019 Jul 26. pii: S1046-2023(18)30474-2. doi: 10.1016/j.ymeth.2019.07.014.  
